@@ -1,0 +1,193 @@
+.not-found {
+  background:
+    radial-gradient(
+      circle at 76% 48%,
+      color-mix(in srgb, var(--color-accent) 12%, transparent),
+      transparent 26%
+    ),
+    var(--color-canvas);
+}
+
+.not-found::before,
+.not-found::after {
+  position: absolute;
+  pointer-events: none;
+  content: "";
+}
+
+.not-found::before {
+  inset: 0;
+  z-index: 0;
+  opacity: 0.18;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-ink) 20%, transparent) 0.55px,
+    transparent 0.55px
+  );
+  background-size: 5px 5px;
+  mix-blend-mode: soft-light;
+}
+
+.not-found::after {
+  top: 0;
+  right: 10%;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    transparent,
+    var(--color-line) 25%,
+    var(--color-line) 75%,
+    transparent
+  );
+}
+
+.not-found-content {
+  animation: not-found-content-in 700ms 100ms var(--ease-emphasis) both;
+}
+
+.not-found-route {
+  position: relative;
+  min-height: 360px;
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-canvas-raised) 78%, transparent);
+  animation: not-found-route-in 700ms 260ms var(--ease-emphasis) both;
+}
+
+.not-found-route-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+  background-position: -1px -1px;
+  background-size: 56px 56px;
+  mask-image: linear-gradient(135deg, black 0%, transparent 72%);
+}
+
+.not-found-route-number {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 13vw, 11rem);
+  font-weight: 820;
+  letter-spacing: -0.12em;
+  line-height: 0.8;
+}
+
+.not-found-route-label {
+  position: absolute;
+  right: var(--space-6);
+  top: var(--space-6);
+  color: var(--color-accent);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.not-found-route-line {
+  position: absolute;
+  inset: auto 0 1.5rem;
+  width: 100%;
+  height: 70%;
+  overflow: visible;
+}
+
+.not-found-route-line path {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  stroke-dasharray: 7 9;
+  vector-effect: non-scaling-stroke;
+}
+
+.not-found-route-point {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 3px solid var(--color-canvas-raised);
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.not-found-route-point-start {
+  bottom: 3.6rem;
+  left: 9%;
+}
+
+.not-found-route-point-end {
+  right: 7%;
+  bottom: 43%;
+}
+
+.not-found-route-meta {
+  position: absolute;
+  right: var(--space-6);
+  bottom: var(--space-6);
+  display: grid;
+  gap: var(--space-1);
+  text-align: right;
+}
+
+.not-found-route-meta span {
+  color: var(--color-ink-dim);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.not-found-route-meta strong {
+  color: var(--color-ink-muted);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: -0.04em;
+}
+
+@keyframes not-found-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes not-found-route-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 800px) {
+  .not-found-route {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 520px) {
+  .not-found {
+    min-height: 760px;
+    align-items: flex-start;
+  }
+
+  .not-found-route {
+    min-height: 250px;
+  }
+
+  .not-found-route-label {
+    max-width: 7rem;
+    text-align: right;
+  }
+
+  .not-found-route-grid {
+    background-size: 40px 40px;
+  }
+}
