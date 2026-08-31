@@ -132,11 +132,11 @@ All spacing uses a 4px base: `--space-1` 4px, `--space-2` 8px, `--space-3` 12px,
 ### Exercise session surface
 
 - **Structure**: full-height camera stage with mirrored video, pose canvas overlay, session HUD, and a compact progress rail.
-- **Variants**: edge-to-edge mobile camera; split camera and instrument-panel desktop layout.
+- **Variants**: edge-to-edge mobile camera; split camera and instrument-panel desktop layout; blocking initialization dialog.
 - **Spacing**: `--space-6` mobile gutters, `--space-12` desktop gutters, `--space-4` HUD rhythm.
-- **States**: preparing camera, tracking live, form warning, and reduced motion.
+- **States**: preparing camera, tracking live, camera initialization error, form warning, and reduced motion.
 - **Accessibility**: camera status is text-visible, progress exposes `aria-valuenow`, exit is a semantic link, and the canvas remains decorative.
-- **Motion**: status and progress use opacity/transform only; reduced motion inherits the global motion rule.
+- **Motion**: initialization dialog uses a single transform-based spinner while the camera and MediaPipe task initialize; reduced motion freezes the spinner while keeping the status visible.
 
 ## 6. Motion & Interaction
 

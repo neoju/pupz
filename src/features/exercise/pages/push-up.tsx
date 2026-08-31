@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, CircleAlert } from "lucide-react";
+import { ArrowLeft, Check, CircleAlert, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { createActor } from "xstate";
@@ -13,6 +13,7 @@ import "./push-up.css";
 export default function Page() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const initializationDialogRef = useRef<HTMLDivElement | null>(null);
 
   // App UI States
   const [reps, setReps] = useState<number>(0);
@@ -41,7 +42,7 @@ export default function Page() {
       try {
         if (isCancelled) return;
 
-        landmarker = await getLandmaker();
+        const landmarkerGetter = getLandmaker();
 
         if (!navigator.mediaDevices?.getUserMedia) {
           setCameraError("Camera access is not available in this browser.");
@@ -51,6 +52,8 @@ export default function Page() {
         mediaStream = await navigator.mediaDevices.getUserMedia({
           video: { width: 640, height: 480, facingMode: "user" },
         });
+
+        landmarker = await landmarkerGetter;
 
         if (isCancelled) return;
 
@@ -137,10 +140,62 @@ export default function Page() {
     };
   }, []);
 
+  useEffect(() => {
+    if (isLoaded) return;
+
+    const dialog = initializationDialogRef.current;
+    if (!dialog) return;
+
+    dialog.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusableElements = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements.at(-1);
+
+      if (
+        event.shiftKey &&
+        (document.activeElement === firstElement ||
+          document.activeElement === dialog)
+      ) {
+        event.preventDefault();
+        lastElement?.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isLoaded]);
+
   const progress = Math.min(reps / 30, 1);
 
   return (
-    <section className="exercise-page" aria-labelledby="exercise-title">
+    <section
+      className="exercise-page"
+      aria-labelledby="exercise-title"
+      aria-busy={!isLoaded}
+    >
       <div className="exercise-stage">
         <div className="exercise-media">
           <video
@@ -182,13 +237,6 @@ export default function Page() {
           <h1 id="exercise-title">Show up for the set.</h1>
           <p>Keep your whole body in frame. We&apos;ll count the rest.</p>
         </div>
-
-        {!isLoaded && (
-          <div className="exercise-loading" role="status">
-            <span className="exercise-loading-mark" aria-hidden="true" />
-            <span>{cameraError ?? "Calibrating your camera..."}</span>
-          </div>
-        )}
 
         <div className="exercise-stage-footer" aria-hidden="true">
           <span>Push-up / Set 01</span>
@@ -246,6 +294,48 @@ export default function Page() {
           </p>
         </div>
       </aside>
+
+      {!isLoaded && (
+        <div
+          className="exercise-initialization-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="exercise-initialization-title"
+          aria-describedby="exercise-initialization-description"
+        >
+          <div
+            ref={initializationDialogRef}
+            className="exercise-initialization-dialog"
+            tabIndex={-1}
+          >
+            {cameraError ? (
+              <CircleAlert
+                className="exercise-initialization-error-icon"
+                aria-hidden="true"
+              />
+            ) : (
+              <LoaderCircle
+                className="exercise-initialization-spinner"
+                aria-hidden="true"
+              />
+            )}
+            <p className="exercise-eyebrow">Session setup</p>
+            <h2 id="exercise-initialization-title">
+              {cameraError ? "Camera setup failed" : "Calibrating your camera"}
+            </h2>
+            <p id="exercise-initialization-description">
+              {cameraError
+                ? cameraError
+                : "We're preparing the camera and pose tracking. This usually takes a moment."}
+            </p>
+            {cameraError && (
+              <Link className="exercise-initialization-exit" to="/">
+                Exit session
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
