@@ -4,9 +4,14 @@ import { Link } from "react-router";
 import { createActor } from "xstate";
 
 import { DrawingUtils, PoseLandmarker } from "@mediapipe/tasks-vision";
-import { extractExerciseMetrics, pushupStrategy } from "@/lib/exercises";
+import {
+  extractExerciseMetrics,
+  pushupStrategy,
+  smoothAlignmentMetrics,
+} from "@/lib/exercises";
 import { getLandmaker } from "@/lib/vision";
 import { counterMachine } from "@/stores/counter";
+import type { JointMetrics } from "@/types/exercise";
 
 import "./push-up.css";
 
@@ -27,6 +32,7 @@ export default function Page() {
     let landmarker: PoseLandmarker | null = null;
     let mediaStream: MediaStream | null = null;
     let isCancelled = false;
+    let previousMetrics: JointMetrics | null = null;
 
     // A. Initialize XState Actor
     const actor = createActor(counterMachine(pushupStrategy));
@@ -116,9 +122,15 @@ export default function Page() {
                 radius: 4,
               });
 
+              const metrics = smoothAlignmentMetrics(
+                previousMetrics,
+                extractExerciseMetrics(landmarks, "pushup"),
+              );
+              previousMetrics = metrics;
+
               actor.send({
                 type: "POSE_UPDATED",
-                metrics: extractExerciseMetrics(landmarks, "pushup"),
+                metrics,
               });
             }
           }
@@ -235,7 +247,9 @@ export default function Page() {
         <div className="exercise-stage-intro">
           <p className="exercise-eyebrow">Daily push-up challenge</p>
           <h1 id="exercise-title">Show up for the set.</h1>
-          <p>Keep your whole body in frame. We&apos;ll count the rest.</p>
+          <p>
+            Set your camera at hip height, then keep your whole body in frame.
+          </p>
         </div>
 
         <div className="exercise-stage-footer" aria-hidden="true">
@@ -290,7 +304,8 @@ export default function Page() {
         <div className="exercise-coach-note">
           <Check aria-hidden="true" />
           <p>
-            Move with control. The goal is consistency, not a perfect first set.
+            Stay side-on and move with control. The goal is consistency, not a
+            perfect first set.
           </p>
         </div>
       </aside>

@@ -68,7 +68,7 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
               { target: "searching", guard: "isPoseLost" },
               {
                 target: "ready",
-                guard: "isFullyExtended",
+                guard: "isFullyExtendedAndInForm",
                 actions: "incrementReps",
               },
               {
@@ -118,9 +118,12 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
           event.type === "POSE_UPDATED" &&
           event.metrics.primaryAngle > context.strategy.ascentThreshold,
 
-        isFullyExtended: ({ context, event }) =>
+        isFullyExtendedAndInForm: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
-          event.metrics.primaryAngle >= context.strategy.lockoutThreshold,
+          event.metrics.primaryAngle >= context.strategy.lockoutThreshold &&
+          (context.formError === null
+            ? event.metrics.alignmentError <= 0.07
+            : event.metrics.alignmentError < 0.05),
 
         isAbortedMovement: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
@@ -131,11 +134,17 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
         clearError: assign({ formError: () => null }),
         checkForm: assign({
           formError: ({ context, event }) => {
-            if (event.type != "POSE_UPDATED") {
+            if (event.type !== "POSE_UPDATED") {
               return context.formError;
             }
 
-            return "";
+            const validationError = context.strategy.validateForm(
+              event.metrics,
+            );
+            if (validationError) return validationError;
+            return event.metrics.alignmentError < 0.05
+              ? null
+              : context.formError;
           },
         }),
       },

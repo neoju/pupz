@@ -3,6 +3,11 @@ export type ExerciseId = "pushup" | "squat";
 export interface JointMetrics {
   primaryAngle: number;
   secondaryAngle: number;
+  alignmentError: number;
+  bodyLineAngle: number;
+  headDeviation: number;
+  hipDeviation: number;
+  kneeDeviation: number;
   confidence: number;
 }
 
