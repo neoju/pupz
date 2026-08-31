@@ -68,6 +68,7 @@
   --color-pupz-accent: var(--color-accent);
   --color-pupz-accent-ink: var(--color-accent-ink);
 
+  --radius: 8px;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

@@ -1,6 +1,8 @@
 import { assign, createMachine } from "xstate";
 import type { ExerciseStrategy, JointMetrics } from "@/types/exercise";
 
+export const REP_COOLDOWN_MS = 800;
+
 export interface BaseExerciseContext {
   reps: number;
   formError: string | null;
@@ -67,7 +69,7 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
             POSE_UPDATED: [
               { target: "searching", guard: "isPoseLost" },
               {
-                target: "ready",
+                target: "cooldown",
                 guard: "isFullyExtendedAndInForm",
                 actions: "incrementReps",
               },
@@ -75,6 +77,17 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
                 actions: "checkForm",
               },
             ],
+          },
+        },
+        cooldown: {
+          on: {
+            POSE_UPDATED: {
+              target: "searching",
+              guard: "isPoseLost",
+            },
+          },
+          after: {
+            REP_COOLDOWN: "ready",
           },
         },
       },
@@ -147,6 +160,9 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
               : context.formError;
           },
         }),
+      },
+      delays: {
+        REP_COOLDOWN: REP_COOLDOWN_MS,
       },
     },
   );

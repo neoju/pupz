@@ -109,7 +109,9 @@
   letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
-  transition: transform 180ms ease-out, background-color 180ms ease-out;
+  transition:
+    transform 180ms ease-out,
+    background-color 180ms ease-out;
 }
 
 .exercise-exit svg {
@@ -181,7 +183,6 @@
   line-height: 1.5;
 }
 
-
 .exercise-initialization-backdrop {
   position: fixed;
   z-index: 10;
@@ -199,9 +200,14 @@
   border: 1px solid var(--color-line);
   border-radius: 18px;
   background:
-    linear-gradient(145deg, color-mix(in srgb, var(--color-ink) 8%, transparent), transparent 46%),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-ink) 8%, transparent),
+      transparent 46%
+    ),
     var(--color-canvas-raised);
-  box-shadow: 0 24px 80px color-mix(in srgb, var(--color-canvas) 48%, transparent);
+  box-shadow: 0 24px 80px
+    color-mix(in srgb, var(--color-canvas) 48%, transparent);
   color: var(--color-ink);
   text-align: center;
 }
@@ -304,7 +310,8 @@
   border: 1px solid var(--color-line);
   border-radius: 18px;
   background: color-mix(in srgb, var(--color-canvas-raised) 84%, transparent);
-  box-shadow: 0 24px 60px color-mix(in srgb, var(--color-canvas) 24%, transparent);
+  box-shadow: 0 24px 60px
+    color-mix(in srgb, var(--color-canvas) 24%, transparent);
   color: var(--color-ink);
   backdrop-filter: blur(18px);
 }
@@ -429,6 +436,10 @@
   color: var(--color-ink-muted);
 }
 
+.exercise-mobile-hud {
+  display: none;
+}
+
 .exercise-form-warning span,
 .exercise-coach-note p {
   margin: 0;
@@ -485,33 +496,89 @@
     bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
     left: var(--space-6);
     z-index: 3;
-    padding: var(--space-4);
-    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    text-align: center;
+    backdrop-filter: none;
+  }
+
+  .exercise-dashboard-heading,
+  .exercise-rep-readout,
+  .exercise-progress,
+  .exercise-stat-grid,
+  .exercise-coach-note {
+    display: none;
   }
 
   .exercise-dashboard-kicker {
     display: none;
   }
 
-  .exercise-rep-readout {
-    margin: var(--space-4) 0 var(--space-3);
-  }
-
-  .exercise-rep-value {
-    font-size: 4rem;
-  }
-
-  .exercise-stat-grid {
-    margin-top: var(--space-4);
-    padding-top: var(--space-3);
-  }
-
-  .exercise-stat-grid > div {
-    gap: var(--space-1);
-  }
-
   .exercise-form-warning {
-    margin-top: var(--space-4);
+    align-items: center;
+    justify-content: center;
+    width: min(100%, 22rem);
+    margin: 0 0 var(--space-3);
+    padding: 0;
+    background: transparent;
+    text-align: center;
+  }
+
+  .exercise-form-warning svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .exercise-mobile-hud {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-canvas) 68%, transparent);
+  }
+
+  .exercise-mobile-reps {
+    display: inline-block;
+    width: 50px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 0.8;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .exercise-mobile-status {
+    display: inline-flex;
+    width: 80px;
+    text-align: center;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-ink-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .exercise-mobile-status span {
+    color: var(--color-ink-dim);
+  }
+
+  .exercise-mobile-status strong {
+    color: var(--color-ink);
+    font-weight: 700;
+  }
+
+  .exercise-form-warning span {
+    max-width: 20rem;
   }
 
   .exercise-coach-note {

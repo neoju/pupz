@@ -301,6 +301,13 @@ export default function Page() {
           </div>
         )}
 
+        <div className="exercise-mobile-hud border p-3 rounded-full">
+          <span className="exercise-mobile-reps border-r">{reps}</span>
+          <span className="exercise-mobile-status">
+            <strong>{machineState}</strong>
+          </span>
+        </div>
+
         <div className="exercise-coach-note">
           <Check aria-hidden="true" />
           <p>
