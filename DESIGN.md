@@ -129,6 +129,15 @@ All spacing uses a 4px base: `--space-1` 4px, `--space-2` 8px, `--space-3` 12px,
 - **Accessibility**: semantic button with an explicit switch label, pressed state, and visible focus ring.
 - **Behavior**: follows the system preference on first visit and persists the user&apos;s choice in local storage.
 
+### Exercise session surface
+
+- **Structure**: full-height camera stage with mirrored video, pose canvas overlay, session HUD, and a compact progress rail.
+- **Variants**: edge-to-edge mobile camera; split camera and instrument-panel desktop layout.
+- **Spacing**: `--space-6` mobile gutters, `--space-12` desktop gutters, `--space-4` HUD rhythm.
+- **States**: preparing camera, tracking live, form warning, and reduced motion.
+- **Accessibility**: camera status is text-visible, progress exposes `aria-valuenow`, exit is a semantic link, and the canvas remains decorative.
+- **Motion**: status and progress use opacity/transform only; reduced motion inherits the global motion rule.
+
 ## 6. Motion & Interaction
 
 - Hero entry: 600ms `cubic-bezier(0.16, 1, 0.3, 1)` using opacity and transform only.

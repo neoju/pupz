@@ -10,9 +10,22 @@ import "@fontsource-variable/geist";
 import "@fontsource-variable/roboto-condensed";
 import "./index.css";
 import App from "./app";
+import { preloadVision } from "./lib/vision";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
   </StrictMode>,
 );
+
+const warmVision = () => {
+  void preloadVision();
+};
+
+if (document.readyState === "complete") {
+  window.setTimeout(warmVision, 0);
+} else {
+  window.addEventListener("load", () => window.setTimeout(warmVision, 0), {
+    once: true,
+  });
+}

@@ -378,6 +378,21 @@ section[id] {
   }
 }
 
+@media (max-width: 800px) {
+  .is-exercise-route .site-header,
+  .is-exercise-route .site-footer {
+    display: none;
+  }
+
+  .is-exercise-route main {
+    padding-top: 0;
+  }
+
+  .is-exercise-route .exercise-page {
+    margin-top: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

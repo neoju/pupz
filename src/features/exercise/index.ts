@@ -1,0 +1,1 @@
+export { ExerciseRoutes } from "./routes";

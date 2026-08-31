@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +31,7 @@ function applyColorScheme(colorScheme: ColorScheme) {
 }
 
 export default function RootLayout() {
+  const location = useLocation();
   const [colorScheme, setColorScheme] =
     useState<ColorScheme>(getStoredColorScheme);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -73,7 +74,11 @@ export default function RootLayout() {
   };
 
   return (
-    <div className="site-shell flex min-h-svh flex-col overflow-x-hidden bg-pupz-canvas">
+    <div
+      className={`site-shell flex min-h-svh flex-col overflow-x-hidden bg-pupz-canvas${
+        location.pathname === "/exercise/push-up" ? " is-exercise-route" : ""
+      }`}
+    >
       <header className={isScrolled ? "site-header is-scrolled" : "site-header"}>
         <a className="brand-mark" href="/" aria-label="pupz home">
           pupz
