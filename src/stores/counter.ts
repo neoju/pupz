@@ -14,6 +14,13 @@ export type BaseExerciseEvent =
   | { type: "CHANGE_EXERCISE"; strategy: ExerciseStrategy }
   | { type: "RESET" };
 
+const isCurrentFormValid = (
+  context: BaseExerciseContext,
+  event: BaseExerciseEvent,
+) =>
+  event.type === "POSE_UPDATED" &&
+  context.strategy.validateForm(event.metrics) === null;
+
 export const counterMachine = (initialStrategy: ExerciseStrategy) =>
   createMachine(
     {
@@ -31,25 +38,27 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
       states: {
         searching: {
           on: {
-            POSE_UPDATED: {
-              target: "ready",
-              guard: "isReadyPosition",
-            },
+            POSE_UPDATED: [
+              { guard: "isPoseLost", actions: "checkForm" },
+              { target: "ready", guard: "isReadyPosition" },
+              { actions: "checkForm" },
+            ],
           },
         },
         ready: {
           entry: "clearError",
           on: {
             POSE_UPDATED: [
-              { target: "searching", guard: "isPoseLost" },
+              { target: "searching", guard: "isPoseLost", actions: "checkForm" },
               { target: "flexion", guard: "isFlexionStarted" },
+              { actions: "checkForm" },
             ],
           },
         },
         flexion: {
           on: {
             POSE_UPDATED: [
-              { target: "searching", guard: "isPoseLost" },
+              { target: "searching", guard: "isPoseLost", actions: "checkForm" },
               { target: "bottom", guard: "isBottomReached" },
               { target: "ready", guard: "isAbortedMovement" },
               { actions: "checkForm" },
@@ -59,15 +68,16 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
         bottom: {
           on: {
             POSE_UPDATED: [
-              { target: "searching", guard: "isPoseLost" },
+              { target: "searching", guard: "isPoseLost", actions: "checkForm" },
               { target: "extension", guard: "isExtensionStarted" },
+              { actions: "checkForm" },
             ],
           },
         },
         extension: {
           on: {
             POSE_UPDATED: [
-              { target: "searching", guard: "isPoseLost" },
+              { target: "searching", guard: "isPoseLost", actions: "checkForm" },
               {
                 target: "cooldown",
                 guard: "isFullyExtendedAndInForm",
@@ -81,10 +91,10 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
         },
         cooldown: {
           on: {
-            POSE_UPDATED: {
-              target: "searching",
-              guard: "isPoseLost",
-            },
+            POSE_UPDATED: [
+              { target: "searching", guard: "isPoseLost", actions: "checkForm" },
+              { actions: "checkForm" },
+            ],
           },
           after: {
             REP_COOLDOWN: "ready",
@@ -114,51 +124,45 @@ export const counterMachine = (initialStrategy: ExerciseStrategy) =>
         isReadyPosition: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
           event.metrics.confidence > 0.6 &&
-          event.metrics.primaryAngle >= context.strategy.lockoutThreshold,
+          event.metrics.primaryAngle >= context.strategy.lockoutThreshold &&
+          isCurrentFormValid(context, event),
 
         isPoseLost: ({ event }) =>
           event.type === "POSE_UPDATED" && event.metrics.confidence <= 0.5,
 
         isFlexionStarted: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
-          event.metrics.primaryAngle < context.strategy.lockoutThreshold,
+          event.metrics.primaryAngle < context.strategy.lockoutThreshold &&
+          isCurrentFormValid(context, event),
 
         isBottomReached: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
-          event.metrics.primaryAngle <= context.strategy.depthThreshold,
+          event.metrics.primaryAngle <= context.strategy.depthThreshold &&
+          isCurrentFormValid(context, event),
 
         isExtensionStarted: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
-          event.metrics.primaryAngle > context.strategy.ascentThreshold,
+          event.metrics.primaryAngle > context.strategy.ascentThreshold &&
+          isCurrentFormValid(context, event),
 
         isFullyExtendedAndInForm: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
           event.metrics.primaryAngle >= context.strategy.lockoutThreshold &&
-          (context.formError === null
-            ? event.metrics.alignmentError <= 0.07
-            : event.metrics.alignmentError < 0.05),
+          isCurrentFormValid(context, event),
 
         isAbortedMovement: ({ context, event }) =>
           event.type === "POSE_UPDATED" &&
-          event.metrics.primaryAngle > context.strategy.lockoutThreshold - 5,
+          event.metrics.primaryAngle > context.strategy.lockoutThreshold - 5 &&
+          isCurrentFormValid(context, event),
       },
       actions: {
         incrementReps: assign({ reps: ({ context }) => context.reps + 1 }),
         clearError: assign({ formError: () => null }),
         checkForm: assign({
-          formError: ({ context, event }) => {
-            if (event.type !== "POSE_UPDATED") {
-              return context.formError;
-            }
-
-            const validationError = context.strategy.validateForm(
-              event.metrics,
-            );
-            if (validationError) return validationError;
-            return event.metrics.alignmentError < 0.05
-              ? null
-              : context.formError;
-          },
+          formError: ({ context, event }) =>
+            event.type === "POSE_UPDATED"
+              ? context.strategy.validateForm(event.metrics)
+              : context.formError,
         }),
       },
       delays: {
