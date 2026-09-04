@@ -1,17 +1,8 @@
 import { ArrowLeft, Check, CircleAlert, LoaderCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router";
-import { createActor } from "xstate";
 
-import { DrawingUtils, PoseLandmarker } from "@mediapipe/tasks-vision";
-import {
-  extractExerciseMetrics,
-  pushupStrategy,
-  smoothAlignmentMetrics,
-} from "@/lib/exercises";
-import { getLandmaker } from "@/lib/vision";
-import { counterMachine } from "@/stores/counter";
-import type { JointMetrics } from "@/types/exercise";
+import { usePoseSession } from "../use-pose-session";
 
 import "./push-up.css";
 
@@ -20,137 +11,8 @@ export default function Page() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const initializationDialogRef = useRef<HTMLDivElement | null>(null);
 
-  // App UI States
-  const [reps, setReps] = useState<number>(0);
-  const [machineState, setMachineState] = useState<string>("searching");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let animFrameId = 0;
-    let landmarker: PoseLandmarker | null = null;
-    let mediaStream: MediaStream | null = null;
-    let isCancelled = false;
-    let previousMetrics: JointMetrics | null = null;
-
-    // A. Initialize XState Actor
-    const actor = createActor(counterMachine(pushupStrategy));
-    const subscription = actor.subscribe((snapshot) => {
-      setReps(snapshot.context.reps);
-      setMachineState(String(snapshot.value));
-      setFormError(snapshot.context.formError);
-    });
-    actor.start();
-
-    // B. Setup MediaPipe Tasks Vision & Camera
-    const initializeTracker = async () => {
-      try {
-        if (isCancelled) return;
-
-        const landmarkerGetter = getLandmaker();
-
-        if (!navigator.mediaDevices?.getUserMedia) {
-          setCameraError("Camera access is not available in this browser.");
-          return;
-        }
-
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: "user" },
-        });
-
-        landmarker = await landmarkerGetter;
-
-        if (isCancelled) return;
-
-        const video = videoRef.current;
-
-        if (!video) return;
-
-        video.srcObject = mediaStream;
-        video.onloadedmetadata = () => {
-          void video.play();
-          setIsLoaded(true);
-          predictWebcam();
-        };
-      } catch (error: unknown) {
-        if (!isCancelled) {
-          setCameraError(
-            error instanceof Error
-              ? error.message
-              : "We could not prepare the camera.",
-          );
-        }
-      }
-    };
-
-    // C. Continuous Frame Prediction Loop
-    let lastVideoTime = -1;
-    const predictWebcam = () => {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-
-      if (video && canvas && landmarker) {
-        const ctx = canvas.getContext("2d");
-
-        if (video.currentTime !== lastVideoTime) {
-          lastVideoTime = video.currentTime;
-          const startTimeMs = performance.now();
-
-          // Run Inference
-          const results = landmarker.detectForVideo(video, startTimeMs);
-
-          // Clear Canvas
-          if (ctx) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const drawingUtils = new DrawingUtils(ctx);
-
-            if (results.landmarks && results.landmarks.length > 0) {
-              const landmarks = results.landmarks[0];
-
-              drawingUtils.drawConnectors(
-                landmarks,
-                PoseLandmarker.POSE_CONNECTIONS,
-                { color: "#00FF00", lineWidth: 3 },
-              );
-              drawingUtils.drawLandmarks(landmarks, {
-                color: "#FF0000",
-                lineWidth: 1,
-                radius: 4,
-              });
-
-              const metrics = smoothAlignmentMetrics(
-                previousMetrics,
-                extractExerciseMetrics(landmarks, "pushup"),
-              );
-              previousMetrics = metrics;
-
-              actor.send({
-                type: "POSE_UPDATED",
-                metrics,
-              });
-            }
-          }
-        }
-      }
-      animFrameId = requestAnimationFrame(predictWebcam);
-    };
-
-    initializeTracker();
-
-    return () => {
-      isCancelled = true;
-      cancelAnimationFrame(animFrameId);
-      subscription.unsubscribe();
-      actor.stop();
-
-      if (landmarker) landmarker.close();
-      mediaStream?.getTracks().forEach((track) => track.stop());
-    };
-  }, []);
+  const { reps, machineState, formError, isLoaded, cameraError } =
+    usePoseSession(videoRef, canvasRef);
 
   useEffect(() => {
     if (isLoaded) return;

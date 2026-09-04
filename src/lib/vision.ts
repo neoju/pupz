@@ -1,4 +1,4 @@
-import { PoseLandmarker, type FilesetResolver } from "@mediapipe/tasks-vision";
+import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
 
 const visionWasmUrl =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm";
@@ -7,7 +7,7 @@ type VisionFileset = Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>;
 
 let visionPromise: Promise<VisionFileset> | null = null;
 
-export function preloadVision(): Promise<VisionFileset> {
+function loadVisionFileset(): Promise<VisionFileset> {
   visionPromise ??= import("@mediapipe/tasks-vision")
     .then(({ FilesetResolver: resolver }) =>
       resolver.forVisionTasks(visionWasmUrl),
@@ -20,8 +20,8 @@ export function preloadVision(): Promise<VisionFileset> {
   return visionPromise;
 }
 
-export async function getLandmaker() {
-  const vision = await preloadVision();
+export async function createPoseLandmarker(canvas: OffscreenCanvas) {
+  const vision = await loadVisionFileset();
 
   return PoseLandmarker.createFromOptions(vision, {
     baseOptions: {
@@ -29,6 +29,7 @@ export async function getLandmaker() {
         "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
       delegate: "GPU",
     },
+    canvas,
     runningMode: "VIDEO",
     numPoses: 1,
   });
