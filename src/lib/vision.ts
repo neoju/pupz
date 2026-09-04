@@ -7,11 +7,12 @@ type VisionFileset = Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>;
 let visionPromise: Promise<VisionFileset> | null = null;
 
 function loadVisionFileset(): Promise<VisionFileset> {
-  visionPromise ??= FilesetResolver.forVisionTasks(visionWasmUrl, true)
-    .catch((error: unknown) => {
+  visionPromise ??= FilesetResolver.forVisionTasks(visionWasmUrl, true).catch(
+    (error: unknown) => {
       visionPromise = null;
       throw error;
-    });
+    },
+  );
 
   return visionPromise;
 }
@@ -21,8 +22,7 @@ export async function createPoseLandmarker(canvas: OffscreenCanvas) {
 
   const options = {
     baseOptions: {
-      modelAssetPath:
-        "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+      modelAssetPath: "/pose_landmarker_lite.task",
       delegate: "GPU" as const,
     },
     canvas,
