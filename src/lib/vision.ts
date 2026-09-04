@@ -1,17 +1,13 @@
 import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
 
-const visionWasmUrl =
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm";
+const visionWasmUrl = new URL("/wasm", self.location.origin).href;
 
 type VisionFileset = Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>;
 
 let visionPromise: Promise<VisionFileset> | null = null;
 
 function loadVisionFileset(): Promise<VisionFileset> {
-  visionPromise ??= import("@mediapipe/tasks-vision")
-    .then(({ FilesetResolver: resolver }) =>
-      resolver.forVisionTasks(visionWasmUrl),
-    )
+  visionPromise ??= FilesetResolver.forVisionTasks(visionWasmUrl, true)
     .catch((error: unknown) => {
       visionPromise = null;
       throw error;
@@ -23,14 +19,28 @@ function loadVisionFileset(): Promise<VisionFileset> {
 export async function createPoseLandmarker(canvas: OffscreenCanvas) {
   const vision = await loadVisionFileset();
 
-  return PoseLandmarker.createFromOptions(vision, {
+  const options = {
     baseOptions: {
       modelAssetPath:
         "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
-      delegate: "GPU",
+      delegate: "GPU" as const,
     },
     canvas,
-    runningMode: "VIDEO",
+    runningMode: "VIDEO" as const,
     numPoses: 1,
-  });
+  };
+
+  try {
+    return await PoseLandmarker.createFromOptions(vision, options);
+  } catch (gpuError: unknown) {
+    console.warn("MediaPipe GPU initialization failed; using CPU.", gpuError);
+    return PoseLandmarker.createFromOptions(vision, {
+      ...options,
+      baseOptions: {
+        ...options.baseOptions,
+        delegate: "CPU",
+      },
+      canvas: undefined,
+    });
+  }
 }

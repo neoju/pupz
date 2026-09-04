@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/copy-mediapipe-wasm.mjs",
     "build": "tsc -b && vite build",
+    "prebuild": "node scripts/copy-mediapipe-wasm.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "doctor": "npx react-doctor@latest"
