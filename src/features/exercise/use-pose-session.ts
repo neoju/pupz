@@ -1,8 +1,7 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useCallback, useEffect, useState, type RefObject } from "react";
 import { createActor } from "xstate";
 
-import { pushupStrategy } from "@/lib/exercises";
-import { counterMachine } from "@/stores/counter";
+import { pushupCounterMachine } from "./pushupCounterMachine";
 import type { NormalizedLandmark } from "@mediapipe/tasks-vision";
 import type {
   PoseConnection,
@@ -26,6 +25,8 @@ const initialSnapshot: PoseSessionSnapshot = {
   cameraError: null,
 };
 
+const nonVisualLandmarks = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
 const assertNever = (value: never): never => {
   throw new Error(`Unhandled pose worker message: ${String(value)}`);
 };
@@ -34,10 +35,11 @@ export function usePoseSession(
   videoRef: RefObject<HTMLVideoElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
 ): PoseSessionSnapshot {
-  const [snapshot, setSnapshot] = useState<PoseSessionSnapshot>(initialSnapshot);
+  const [snapshot, setSnapshot] =
+    useState<PoseSessionSnapshot>(initialSnapshot);
 
-  useEffect(() => {
-    const actor = createActor(counterMachine(pushupStrategy));
+  const createPoseSession = useCallback(() => {
+    const actor = createActor(pushupCounterMachine);
     const worker = new Worker(
       new URL("./pose-landmarker.worker.ts", import.meta.url),
       { type: "module" },
@@ -63,7 +65,9 @@ export function usePoseSession(
 
     const fail = (error: unknown) => {
       const message =
-        error instanceof Error ? error.message : "We could not prepare the camera.";
+        error instanceof Error
+          ? error.message
+          : "We could not prepare the camera.";
       setSnapshot((current) => ({ ...current, cameraError: message }));
     };
 
@@ -74,7 +78,10 @@ export function usePoseSession(
 
       if (!canvas || !context || !video) return;
 
-      if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+      if (
+        canvas.width !== video.videoWidth ||
+        canvas.height !== video.videoHeight
+      ) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
       }
@@ -85,6 +92,13 @@ export function usePoseSession(
       context.beginPath();
 
       for (const connection of connections) {
+        if (
+          nonVisualLandmarks.has(connection.start) ||
+          nonVisualLandmarks.has(connection.end)
+        ) {
+          continue;
+        }
+
         const start = landmarks[connection.start];
         const end = landmarks[connection.end];
 
@@ -94,10 +108,27 @@ export function usePoseSession(
         context.lineTo(end.x * canvas.width, end.y * canvas.height);
       }
 
+      const nose = landmarks[0];
+      const leftShoulder = landmarks[11];
+      const rightShoulder = landmarks[12];
+
+      if (nose && leftShoulder && rightShoulder) {
+        const shoulderCenterX = (leftShoulder.x + rightShoulder.x) / 2;
+        const shoulderCenterY = (leftShoulder.y + rightShoulder.y) / 2;
+
+        context.moveTo(nose.x * canvas.width, nose.y * canvas.height);
+        context.lineTo(
+          shoulderCenterX * canvas.width,
+          shoulderCenterY * canvas.height,
+        );
+      }
+
       context.stroke();
       context.fillStyle = "#ffffff";
 
-      for (const landmark of landmarks) {
+      for (const [index, landmark] of landmarks.entries()) {
+        if (nonVisualLandmarks.has(index)) continue;
+
         context.beginPath();
         context.arc(
           landmark.x * canvas.width,
@@ -173,7 +204,7 @@ export function usePoseSession(
         case "RESULT":
           isFramePending = false;
           drawPose(response.landmarks);
-          actor.send({ type: "POSE_UPDATED", metrics: response.metrics });
+          actor.send({ type: "POSE_UPDATED", observation: response.observation });
           break;
         case "ERROR":
           isWorkerFailed = true;
@@ -242,6 +273,8 @@ export function usePoseSession(
       stopMediaStream();
     };
   }, [canvasRef, videoRef]);
+
+  useEffect(() => createPoseSession(), [createPoseSession]);
 
   return snapshot;
 }

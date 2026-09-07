@@ -62,7 +62,7 @@ export default function Page() {
           <p className="exercise-eyebrow">Daily push-up challenge</p>
           <h1 id="exercise-title">Show up for the set.</h1>
           <p>
-            Set your camera at hip height, then keep your whole body in frame.
+            Keep your camera upright and your shoulders, hands, hips and feet in frame.
           </p>
         </div>
 
@@ -125,8 +125,8 @@ export default function Page() {
         <div className="exercise-coach-note">
           <Check aria-hidden="true" />
           <p>
-            Stay side-on and move with control. The goal is consistency, not a
-            perfect first set.
+            Choose a view where your joints stay visible. Start with straight
+            arms, lower with control, then fully extend to finish each rep.
           </p>
         </div>
       </aside>

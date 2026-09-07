@@ -1,19 +1,13 @@
 import { PoseLandmarker } from "@mediapipe/tasks-vision";
 
-import {
-  extractExerciseMetrics,
-  pushupStrategy,
-  smoothAlignmentMetrics,
-} from "@/lib/exercises";
+import { evaluatePushupPose } from "./pushup-pose";
 import { createPoseLandmarker } from "@/lib/vision";
 import type {
   PoseWorkerRequest,
   PoseWorkerResponse,
 } from "@/features/exercise/pose-worker-protocol";
-import type { JointMetrics } from "@/types/exercise";
 
 let landmarker: PoseLandmarker | null = null;
-let previousMetrics: JointMetrics | null = null;
 
 const send = (message: PoseWorkerResponse) => self.postMessage(message);
 
@@ -23,7 +17,6 @@ const getErrorMessage = (error: unknown): string =>
 const closeLandmarker = () => {
   landmarker?.close();
   landmarker = null;
-  previousMetrics = null;
 };
 
 const initialize = async () => {
@@ -47,11 +40,12 @@ const detect = (request: Extract<PoseWorkerRequest, { type: "FRAME" }>) => {
   try {
     const result = landmarker.detectForVideo(request.frame, request.timestamp);
     const landmarks = result.landmarks[0] ?? [];
-    const rawMetrics = extractExerciseMetrics(landmarks, pushupStrategy.id);
-    const metrics = smoothAlignmentMetrics(previousMetrics, rawMetrics);
-
-    previousMetrics = landmarks.length > 0 ? metrics : null;
-    send({ type: "RESULT", landmarks, metrics });
+    const observation = evaluatePushupPose({
+      landmarks,
+      worldLandmarks: result.worldLandmarks[0] ?? [],
+      timestamp: request.timestamp,
+    });
+    send({ type: "RESULT", landmarks, observation });
   } catch (error: unknown) {
     send({ type: "ERROR", message: getErrorMessage(error) });
   } finally {

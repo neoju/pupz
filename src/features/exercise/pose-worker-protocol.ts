@@ -1,6 +1,6 @@
 import type { NormalizedLandmark } from "@mediapipe/tasks-vision";
 
-import type { JointMetrics } from "@/types/exercise";
+import type { PushupObservation } from "./pushup-pose";
 
 export interface PoseConnection {
   readonly start: number;
@@ -24,6 +24,6 @@ export type PoseWorkerResponse =
   | {
       readonly type: "RESULT";
       readonly landmarks: readonly NormalizedLandmark[];
-      readonly metrics: JointMetrics;
+      readonly observation: PushupObservation;
     }
   | { readonly type: "ERROR"; readonly message: string };
