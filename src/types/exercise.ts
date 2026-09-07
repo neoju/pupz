@@ -1,5 +1,12 @@
 export type ExerciseId = "pushup" | "squat";
 
+export interface Keypoint {
+  readonly x: number;
+  readonly y: number;
+  readonly z?: number;
+  readonly visibility?: number;
+}
+
 export interface JointMetrics {
   primaryAngle: number;
   secondaryAngle: number;
@@ -14,6 +21,8 @@ export interface JointMetrics {
 export interface ExerciseStrategy {
   id: ExerciseId;
   name: string;
+
+  extractExerciseMetrics: (landmarks: readonly Keypoint[]) => JointMetrics;
 
   // Angle thresholds
   lockoutThreshold: number; // Angle to consider full extension (e.g., >= 150 deg)

@@ -1,16 +1,8 @@
 import type {
-  ExerciseId,
   ExerciseStrategy,
+  Keypoint,
   JointMetrics,
 } from "@/types/exercise";
-import type { Landmark } from "@mediapipe/tasks-vision";
-
-export interface Keypoint {
-  x: number;
-  y: number;
-  z?: number;
-  visibility?: number;
-}
 
 export interface WholeBodyAlignment {
   alignmentError: number;
@@ -91,13 +83,15 @@ export function calculateWholeBodyAlignment(
     (sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }),
     { x: 0, y: 0 },
   );
-  centroid.x /= points.length;
-  centroid.y /= points.length;
+  const center = {
+    x: centroid.x / points.length,
+    y: centroid.y / points.length,
+  };
 
   const covariance = points.reduce(
     (sum, point) => {
-      const x = point.x - centroid.x;
-      const y = point.y - centroid.y;
+      const x = point.x - center.x;
+      const y = point.y - center.y;
       return {
         xx: sum.xx + x * x,
         xy: sum.xy + x * y,
@@ -201,69 +195,38 @@ export function calculateAngle(a: Keypoint, b: Keypoint, c: Keypoint): number {
   return degrees;
 }
 
-export function extractExerciseMetrics(
-  landmarks: Landmark[],
-  strategyId: ExerciseId,
-) {
-  if (!landmarks || landmarks.length === 0) {
-    return {
-      primaryAngle: 0,
-      secondaryAngle: 0,
-      ...EMPTY_ALIGNMENT,
-    };
-  }
-
-  if (strategyId === "pushup") {
-    // Primary: Elbow angle (Shoulder - Elbow - Wrist)
-    const primaryAngle = calculateAngle(
-      landmarks[11],
-      landmarks[13],
-      landmarks[15],
-    );
-    // Secondary: Hip/Plank angle (Shoulder - Hip - Ankle)
-    const secondaryAngle = calculateAngle(
-      landmarks[11],
-      landmarks[23],
-      landmarks[27],
-    );
-    const alignment = calculateWholeBodyAlignment(landmarks);
-
-    return { primaryAngle, secondaryAngle, ...alignment };
-  }
-
-  if (strategyId === "squat") {
-    // Primary: Knee angle (Hip - Knee - Ankle)
-    const primaryAngle = calculateAngle(
-      landmarks[23],
-      landmarks[25],
-      landmarks[27],
-    );
-    // Secondary: Torso inclination angle (Shoulder - Hip - Knee)
-    const secondaryAngle = calculateAngle(
-      landmarks[11],
-      landmarks[23],
-      landmarks[25],
-    );
-    const confidence =
-      ((landmarks[25].visibility ?? 0) + (landmarks[27].visibility ?? 0)) / 2;
-
-    return {
-      primaryAngle,
-      secondaryAngle,
-      ...EMPTY_ALIGNMENT,
-      confidence,
-    };
-  }
-
-  throw new Error(`Unsupported exercise strategy: ${strategyId}`);
-}
-
 export const pushupStrategy: ExerciseStrategy = {
   id: "pushup",
   name: "Push Up",
   lockoutThreshold: 150,
   depthThreshold: 90,
   ascentThreshold: 100,
+  extractExerciseMetrics: (landmarks) => {
+    if (landmarks.length === 0) {
+      return {
+        primaryAngle: 0,
+        secondaryAngle: 0,
+        ...EMPTY_ALIGNMENT,
+      };
+    }
+
+    const primaryAngle = calculateAngle(
+      landmarks[11],
+      landmarks[13],
+      landmarks[15],
+    );
+    const secondaryAngle = calculateAngle(
+      landmarks[11],
+      landmarks[23],
+      landmarks[27],
+    );
+
+    return {
+      primaryAngle,
+      secondaryAngle,
+      ...calculateWholeBodyAlignment(landmarks),
+    };
+  },
   validateForm: (metrics: JointMetrics) => {
     if (metrics.confidence <= 0.6) {
       return "Step back so your whole body is visible";
@@ -291,6 +254,35 @@ export const squatStrategy: ExerciseStrategy = {
   lockoutThreshold: 160,
   depthThreshold: 90,
   ascentThreshold: 100,
+  extractExerciseMetrics: (landmarks) => {
+    if (landmarks.length === 0) {
+      return {
+        primaryAngle: 0,
+        secondaryAngle: 0,
+        ...EMPTY_ALIGNMENT,
+      };
+    }
+
+    const primaryAngle = calculateAngle(
+      landmarks[23],
+      landmarks[25],
+      landmarks[27],
+    );
+    const secondaryAngle = calculateAngle(
+      landmarks[11],
+      landmarks[23],
+      landmarks[25],
+    );
+    const confidence =
+      ((landmarks[25].visibility ?? 0) + (landmarks[27].visibility ?? 0)) / 2;
+
+    return {
+      primaryAngle,
+      secondaryAngle,
+      ...EMPTY_ALIGNMENT,
+      confidence,
+    };
+  },
   validateForm: (metrics) => {
     if (metrics.secondaryAngle < 80) {
       return "Keep chest up: Avoid leaning too far forward";
