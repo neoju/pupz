@@ -117,9 +117,9 @@ export default function StatsItem({ stat, featured = false }: StatsItemProps) {
           <Progress
             aria-label={`${stat.name} progress: ${Math.round(progress)}%`}
             className={cn(
-              "gap-0 [&_[data-slot=progress-track]]:h-1 [&_[data-slot=progress-track]]:bg-pupz-ink/15 [&_[data-slot=progress-indicator]]:bg-pupz-accent",
+              "gap-0 **:data-[slot=progress-track]:h-1 **:data-[slot=progress-track]:bg-pupz-ink/15 **:data-[slot=progress-indicator]:bg-pupz-accent",
               featured &&
-                "[&_[data-slot=progress-track]]:h-1.5 [&_[data-slot=progress-track]]:bg-pupz-accent-ink/20 [&_[data-slot=progress-indicator]]:bg-pupz-accent-ink",
+                "**:data-[slot=progress-track]:h-1.5 **:data-[slot=progress-track]:bg-pupz-accent-ink/20 **:data-[slot=progress-indicator]:bg-pupz-accent-ink",
             )}
             value={progress}
           />
