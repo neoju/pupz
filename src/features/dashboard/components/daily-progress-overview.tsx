@@ -1,38 +1,45 @@
 import { Activity, Dumbbell, Flame } from "lucide-react";
 
+import { getExerciseHistorySummary } from "@/lib/exercise-history";
+
 import StatsItem, { type ExerciseStat } from "./stats-item";
 
-const stats: readonly ExerciseStat[] = [
-  {
-    name: "Today's target",
-    icon: Activity,
-    label: "Today",
-    current: 18,
-    goal: 30,
-    unit: "reps",
-    detail: "12 reps left to close out your set.",
-  },
-  {
-    name: "Current streak",
-    icon: Flame,
-    label: "Consistency",
-    current: 6,
-    goal: 7,
-    unit: "days",
-    detail: "One more day keeps the rhythm going.",
-  },
-  {
-    name: "This week",
-    icon: Dumbbell,
-    label: "Volume",
-    current: 98,
-    goal: 120,
-    unit: "reps",
-    detail: "Push-ups completed this week.",
-  },
-];
-
 export function DailyProgressOverview() {
+  const { today, currentStreak, currentWeek } = getExerciseHistorySummary();
+  const remainingToday = Math.max(0, 30 - today);
+  const stats: readonly ExerciseStat[] = [
+    {
+      name: "Today's target",
+      icon: Activity,
+      label: "Today",
+      current: today,
+      goal: 30,
+      unit: "reps",
+      detail:
+        remainingToday === 0
+          ? "Today's set is complete."
+          : `${remainingToday} reps left to close out your set.`,
+    },
+    {
+      name: "Current streak",
+      icon: Flame,
+      label: "Consistency",
+      current: currentStreak,
+      goal: 7,
+      unit: "days",
+      detail: "Show up today to keep the rhythm going.",
+    },
+    {
+      name: "This week",
+      icon: Dumbbell,
+      label: "Volume",
+      current: currentWeek,
+      goal: 120,
+      unit: "reps",
+      detail: "Push-ups completed this week.",
+    },
+  ];
+
   return (
     <section
       className="mx-auto grid max-w-360 grid-cols-1 gap-12 border-b border-pupz-line px-6 py-24

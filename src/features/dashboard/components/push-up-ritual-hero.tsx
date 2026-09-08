@@ -4,11 +4,15 @@ import { Link } from "react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { getExerciseHistorySummary } from "@/lib/exercise-history";
 import { cn } from "@/lib/utils";
 
 import "./push-up-ritual-hero.css";
 
 export function PushUpRitualHero() {
+  const { today } = getExerciseHistorySummary();
+  const progress = Math.min((today / 30) * 100, 100);
+
   return (
     <section
       className="hero relative flex min-h-[min(880px,92svh)] items-end overflow-hidden bg-pupz-canvas
@@ -72,7 +76,7 @@ export function PushUpRitualHero() {
             className="my-4 mb-2 flex items-baseline gap-2 font-pupz-display text-5xl leading-none
             font-extrabold tracking-[-0.08em] tabular-nums"
           >
-            18 <span className="text-pupz-accent">/</span> 30
+            {today} <span className="text-pupz-accent">/</span> 30
           </p>
           <p className="mb-4 m-0 text-[0.6875rem] font-bold tracking-[0.13em] text-pupz-ink-dim uppercase">
             Push-ups
@@ -81,7 +85,7 @@ export function PushUpRitualHero() {
             aria-label="Push-up progress"
             className="gap-0 **:data-[slot=progress-track]:h-1 **:data-[slot=progress-track]:bg-pupz-ink/20
             **:data-[slot=progress-indicator]:bg-pupz-accent"
-            value={60}
+            value={progress}
           />
         </CardContent>
       </Card>
