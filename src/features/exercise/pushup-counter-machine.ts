@@ -2,12 +2,12 @@ import { assign, setup } from "xstate";
 import type { PushupObservation } from "./pushup-pose";
 
 export const pushupThresholds = {
-  topAngle: 160,
-  descentAngle: 145,
+  topAngle: 145,
+  descentAngle: 140,
   bottomAngle: 100,
   ascentAngle: 115,
   stabilityMs: 120,
-  maximumGapMs: 500,
+  maximumGapMs: 333,
   minimumBodyLowering: 0.1,
 } as const;
 
@@ -78,11 +78,12 @@ export const pushupCounterMachine = setup({
     interrupted: ({ context, event }) =>
       event.type === "POSE_UPDATED" &&
       observationError(context, event.observation) !== null,
-    stableTop: ({ context, event }) =>
-      event.type === "POSE_UPDATED" &&
-      event.observation.status === "valid" &&
-      isTop(event.observation) &&
-      stableSince(context.topSince, event.observation.timestamp),
+    stableTop: ({ context, event }) => {
+      return event.type === "POSE_UPDATED" &&
+        event.observation.status === "valid" &&
+        isTop(event.observation) &&
+        stableSince(context.topSince, event.observation.timestamp)
+    },
     descending: ({ event }) =>
       event.type === "POSE_UPDATED" &&
       event.observation.status === "valid" &&
@@ -93,7 +94,7 @@ export const pushupCounterMachine = setup({
       isBottom(event.observation) &&
       stableSince(context.bottomSince, event.observation.timestamp) &&
       context.topSupportHeight - event.observation.supportHeight >=
-        pushupThresholds.minimumBodyLowering,
+      pushupThresholds.minimumBodyLowering,
     ascending: ({ event }) =>
       event.type === "POSE_UPDATED" &&
       event.observation.status === "valid" &&

@@ -7,20 +7,20 @@ export type PosePoint = {
 
 export type PushupObservation =
   | {
-      readonly status: "valid";
-      readonly timestamp: number;
-      readonly arms: "both" | "left" | "right";
-      readonly elbowAngles: {
-        readonly minimum: number;
-        readonly maximum: number;
-      };
-      readonly supportHeight: number;
-    }
-  | {
-      readonly status: "invalid" | "unobservable";
-      readonly timestamp: number;
-      readonly message: string;
+    readonly status: "valid";
+    readonly timestamp: number;
+    readonly arms: "both" | "left" | "right";
+    readonly elbowAngles: {
+      readonly minimum: number;
+      readonly maximum: number;
     };
+    readonly supportHeight: number;
+  }
+  | {
+    readonly status: "invalid" | "unobservable";
+    readonly timestamp: number;
+    readonly message: string;
+  };
 
 export type PushupPose = {
   readonly worldLandmarks: readonly PosePoint[];
@@ -32,7 +32,7 @@ const thresholds = {
   visibility: 0.65,
   straightHip: 160,
   straightKnee: 160,
-  neutralHead: 140,
+  neutralHead: 120,
   maximumBodyVerticalFraction: 0.65,
   minimumSupportVerticalFraction: 0.12,
   minimumSegmentLength: 0.05,
@@ -102,10 +102,10 @@ function visiblePoint(pose: PushupPose, index: number): PosePoint | null {
 
 type ArmAssessment =
   | {
-      readonly status: "valid";
-      readonly elbowAngle: number;
-      readonly supportHeight: number;
-    }
+    readonly status: "valid";
+    readonly elbowAngle: number;
+    readonly supportHeight: number;
+  }
   | { readonly status: "invalid" | "unobservable"; readonly message: string };
 
 // Validates one side of the body and calculates its push-up metrics.
