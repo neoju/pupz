@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type RefObject } from "react";
 import { createActor } from "xstate";
 
-import { pushupCounterMachine } from "./pushupCounterMachine";
+import { pushupCounterMachine } from "./pushup-counter-machine";
 import type { NormalizedLandmark } from "@mediapipe/tasks-vision";
 import type {
   PoseConnection,
@@ -204,7 +204,10 @@ export function usePoseSession(
         case "RESULT":
           isFramePending = false;
           drawPose(response.landmarks);
-          actor.send({ type: "POSE_UPDATED", observation: response.observation });
+          actor.send({
+            type: "POSE_UPDATED",
+            observation: response.observation,
+          });
           break;
         case "ERROR":
           isWorkerFailed = true;
