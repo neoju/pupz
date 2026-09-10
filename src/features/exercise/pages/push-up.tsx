@@ -1,5 +1,5 @@
-import { ArrowLeft, Check, CircleAlert } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { ArrowLeft, Check, CircleAlert, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
 import {
@@ -9,16 +9,22 @@ import {
 
 import { ExerciseInitializationDialog } from "../components/exercise-initialization-dialog";
 import { usePoseSession } from "../use-pose-session";
+import { useSpeechSession } from "../use-speech-session";
 
 import "./push-up.css";
 
 export default function Page() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [startingReps] = useState(() => getExerciseHistorySummary().today);
 
   const { reps, machineState, formError, isLoaded, cameraError } =
     usePoseSession(videoRef, canvasRef);
-  const startingRepsRef = useRef(getExerciseHistorySummary().today);
+  const { speechEnabled, toggleSpeech } = useSpeechSession(
+    startingReps,
+    reps,
+    formError,
+  );
   const completedRepsRef = useRef(0);
 
   useEffect(() => {
@@ -28,10 +34,10 @@ export default function Page() {
   useEffect(
     () => () => {
       recordPushups(
-        Math.max(0, completedRepsRef.current - startingRepsRef.current),
+        Math.max(0, completedRepsRef.current - startingReps),
       );
     },
-    [],
+    [startingReps],
   );
 
   const progress = Math.min(reps / 30, 1);
@@ -100,6 +106,17 @@ export default function Page() {
           </div>
           <span className="exercise-set-label">SET 01</span>
         </div>
+
+        <button
+          className="exercise-speech-control"
+          type="button"
+          aria-pressed={speechEnabled}
+          aria-label={speechEnabled ? "Mute voice coaching" : "Enable voice coaching"}
+          onClick={toggleSpeech}
+        >
+          {speechEnabled ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+          <span>{speechEnabled ? "Voice on" : "Voice off"}</span>
+        </button>
 
         <div className="exercise-rep-readout">
           <span className="exercise-rep-value">{reps}</span>
