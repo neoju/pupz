@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState, type RefObject } from "react";
 import { createActor } from "xstate";
 
+import { getExerciseHistorySummary } from "@/lib/exercise-history";
+
 import { pushupCounterMachine } from "./pushup-counter-machine";
 import type { NormalizedLandmark } from "@mediapipe/tasks-vision";
 import type {
@@ -35,11 +37,14 @@ export function usePoseSession(
   videoRef: RefObject<HTMLVideoElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
 ): PoseSessionSnapshot {
-  const [snapshot, setSnapshot] =
-    useState<PoseSessionSnapshot>(initialSnapshot);
+  const [snapshot, setSnapshot] = useState<PoseSessionSnapshot>(() => ({
+    ...initialSnapshot,
+    reps: getExerciseHistorySummary().today,
+  }));
 
   const createPoseSession = useCallback(() => {
-    const actor = createActor(pushupCounterMachine);
+    const initialReps = getExerciseHistorySummary().today;
+    const actor = createActor(pushupCounterMachine, { input: { initialReps } });
     const worker = new Worker(
       new URL("./pose-landmarker.worker.ts", import.meta.url),
       { type: "module" },

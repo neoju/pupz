@@ -1,11 +1,11 @@
 import { Activity, Dumbbell, Flame } from "lucide-react";
 
-import { getExerciseHistorySummary } from "@/lib/exercise-history";
+import { useExerciseHistorySummary } from "@/lib/exercise-history";
 
 import StatsItem, { type ExerciseStat } from "./stats-item";
 
 export function DailyProgressOverview() {
-  const { today, currentStreak, currentWeek } = getExerciseHistorySummary();
+  const { today, currentStreak, currentWeek } = useExerciseHistorySummary();
   const remainingToday = Math.max(0, 30 - today);
   const stats: readonly ExerciseStat[] = [
     {

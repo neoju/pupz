@@ -2,7 +2,10 @@ import { ArrowLeft, Check, CircleAlert } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 
-import { recordPushups } from "@/lib/exercise-history";
+import {
+  getExerciseHistorySummary,
+  recordPushups,
+} from "@/lib/exercise-history";
 
 import { ExerciseInitializationDialog } from "../components/exercise-initialization-dialog";
 import { usePoseSession } from "../use-pose-session";
@@ -15,6 +18,7 @@ export default function Page() {
 
   const { reps, machineState, formError, isLoaded, cameraError } =
     usePoseSession(videoRef, canvasRef);
+  const startingRepsRef = useRef(getExerciseHistorySummary().today);
   const completedRepsRef = useRef(0);
 
   useEffect(() => {
@@ -23,7 +27,9 @@ export default function Page() {
 
   useEffect(
     () => () => {
-      recordPushups(completedRepsRef.current);
+      recordPushups(
+        Math.max(0, completedRepsRef.current - startingRepsRef.current),
+      );
     },
     [],
   );

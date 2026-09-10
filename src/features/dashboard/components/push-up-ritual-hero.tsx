@@ -4,13 +4,13 @@ import { Link } from "react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { getExerciseHistorySummary } from "@/lib/exercise-history";
+import { useExerciseHistorySummary } from "@/lib/exercise-history";
 import { cn } from "@/lib/utils";
 
 import "./push-up-ritual-hero.css";
 
 export function PushUpRitualHero() {
-  const { today } = getExerciseHistorySummary();
+  const { today } = useExerciseHistorySummary();
   const progress = Math.min((today / 30) * 100, 100);
 
   return (

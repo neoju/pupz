@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
+
 export const EXERCISE_HISTORY_STORAGE_KEY = "pupz-exercise-history";
+const EXERCISE_HISTORY_UPDATED_EVENT = "pupz:exercise-history-updated";
 
 const RETENTION_DAYS = 90;
 
@@ -141,7 +144,7 @@ export function recordPushups(reps: number, now = new Date()): boolean {
   const previousToday = history.find(({ date }) => date === todayKey)?.reps ?? 0;
   const withoutToday = history.filter(({ date }) => date !== todayKey);
 
-  return writeHistory(
+  const didWrite = writeHistory(
     normalizeHistory(
       [
         ...withoutToday.map(({ date, reps: count }) => [date, count]),
@@ -150,6 +153,38 @@ export function recordPushups(reps: number, now = new Date()): boolean {
       now,
     ),
   );
+
+  if (didWrite && typeof window !== "undefined") {
+    window.dispatchEvent(new Event(EXERCISE_HISTORY_UPDATED_EVENT));
+  }
+
+  return didWrite;
+}
+
+export function useExerciseHistorySummary(): ExerciseHistorySummary {
+  const [summary, setSummary] = useState(getExerciseHistorySummary);
+
+  useEffect(() => {
+    const refresh = () => setSummary(getExerciseHistorySummary());
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === EXERCISE_HISTORY_STORAGE_KEY) refresh();
+    };
+
+    window.addEventListener(EXERCISE_HISTORY_UPDATED_EVENT, refresh);
+    window.addEventListener("storage", onStorage);
+
+    // The exercise route writes its final reps during unmount. Refresh once
+    // after the dashboard has mounted so that navigation cleanup is included.
+    const refreshFrame = window.requestAnimationFrame(refresh);
+
+    return () => {
+      window.cancelAnimationFrame(refreshFrame);
+      window.removeEventListener(EXERCISE_HISTORY_UPDATED_EVENT, refresh);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  return summary;
 }
 
 export function getExerciseHistorySummary(

@@ -34,9 +34,14 @@ const initialContext: CounterContext = {
   bottomSince: null,
   topSupportHeight: 0,
 };
-const machineTypes: { context: CounterContext; events: CounterEvent } = {
+const machineTypes: {
+  context: CounterContext;
+  events: CounterEvent;
+  input: { readonly initialReps: number };
+} = {
   context: initialContext,
   events: { type: "RESET" },
+  input: { initialReps: 0 },
 };
 
 function observationError(
@@ -140,7 +145,10 @@ export const pushupCounterMachine = setup({
   },
 }).createMachine({
   id: "pushupCounter",
-  context: initialContext,
+  context: ({ input }) => ({
+    ...initialContext,
+    reps: input.initialReps,
+  }),
   initial: "searching",
   on: { RESET: { target: ".searching", actions: "reset" } },
   states: {
