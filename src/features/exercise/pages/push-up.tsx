@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, CircleAlert, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
@@ -12,13 +12,16 @@ import { useAudioSession } from "../use-audio-session";
 import { usePoseSession } from "../use-pose-session";
 
 import "./push-up.css";
+import "./push-up-overlay.css";
+import "./push-up-responsive.css";
 
 export default function Page() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [startingReps] = useState(() => getExerciseHistorySummary().today);
+  const [startingSummary] = useState(() => getExerciseHistorySummary());
+  const { today: startingReps, currentStreak } = startingSummary;
 
-  const { reps, machineState, formError, isLoaded, cameraError } =
+  const { reps, formError, isLoaded, cameraError } =
     usePoseSession(videoRef, canvasRef);
   const { speechEnabled, toggleSpeech } = useAudioSession(
     startingReps,
@@ -41,6 +44,8 @@ export default function Page() {
   );
 
   const progress = Math.min(reps / 30, 1);
+  const weekTotal = startingSummary.currentWeek + Math.max(0, reps - startingReps);
+  const repDisplay = String(reps).padStart(2, "0");
 
   return (
     <section
@@ -48,6 +53,10 @@ export default function Page() {
       aria-labelledby="exercise-title"
       aria-busy={!isLoaded}
     >
+      <h1 id="exercise-title" className="sr-only">
+        Daily push-up challenge
+      </h1>
+
       <div className="exercise-stage">
         <div className="exercise-media">
           <video
@@ -64,109 +73,90 @@ export default function Page() {
           />
         </div>
         <div className="exercise-stage-scrim" aria-hidden="true" />
+        <div className="exercise-frame" aria-hidden="true" />
 
-        <div className="exercise-stage-topline">
-          <Link className="exercise-exit" to="/">
-            <ArrowLeft aria-hidden="true" />
-            Exit session
-          </Link>
-          <p
-            className="exercise-live-status"
-            data-live={isLoaded}
-            aria-live="polite"
-          >
-            <span aria-hidden="true" />
-            {cameraError
-              ? "Camera unavailable"
-              : isLoaded
-                ? "Tracking live"
-                : "Preparing camera"}
-          </p>
-        </div>
-
-        <div className="exercise-stage-intro">
-          <p className="exercise-eyebrow">Daily push-up challenge</p>
-          <h1 id="exercise-title">Show up for the set.</h1>
-          <p>
-            Keep your camera upright and your shoulders, hands, hips and feet in frame.
-          </p>
-        </div>
-
-        <div className="exercise-stage-footer" aria-hidden="true">
-          <span>Push-up / Set 01</span>
-          <span>Live form tracking</span>
-        </div>
-      </div>
-
-      <aside className="exercise-dashboard" aria-label="Push-up session status">
-        <div className="exercise-dashboard-heading">
-          <div>
-            <p className="exercise-eyebrow">Today&apos;s session</p>
-            <p className="exercise-dashboard-kicker">One set. Full focus.</p>
+        <div className="exercise-topbar">
+          <div className="exercise-metric exercise-week-total">
+            <span>total in week</span>
+            <strong>{weekTotal}</strong>
+            <Link className="exercise-exit" to="/" aria-label="Exit session">
+              <ArrowLeft aria-hidden="true" />
+              <span>Exit</span>
+            </Link>
           </div>
-          <span className="exercise-set-label">SET 01</span>
-        </div>
 
-        <button
-          className="exercise-speech-control"
-          type="button"
-          aria-pressed={speechEnabled}
-          aria-label={speechEnabled ? "Mute voice coaching" : "Enable voice coaching"}
-          onClick={toggleSpeech}
-        >
-          {speechEnabled ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
-          <span>{speechEnabled ? "Voice on" : "Voice off"}</span>
-        </button>
+          <span className="exercise-brand" aria-label="pupz">
+            pupz
+          </span>
 
-        <div className="exercise-rep-readout">
-          <span className="exercise-rep-value">{reps}</span>
-          <span className="exercise-rep-goal">/ 30 reps</span>
+          <div className="exercise-metric exercise-streak">
+            <span>daily streak</span>
+            <strong>{currentStreak}</strong>
+            <p
+              className="exercise-live-status"
+              data-live={isLoaded}
+              aria-live="polite"
+            >
+              <span aria-hidden="true" />
+              {cameraError
+                ? "Camera unavailable"
+                : isLoaded
+                  ? "Tracking live"
+                  : "Preparing camera"}
+            </p>
+          </div>
         </div>
 
         <div
-          className="exercise-progress"
-          role="progressbar"
-          aria-label="Push-up set progress"
-          aria-valuemin={0}
-          aria-valuemax={30}
-          aria-valuenow={reps}
+          className="exercise-tracking-marker"
+          data-live={isLoaded}
+          aria-hidden="true"
         >
-          <span style={{ transform: `scaleX(${progress})` }} />
+          <span className="exercise-marker-ring" />
+          <span className="exercise-marker-ring" />
+          <span className="exercise-marker-core" />
         </div>
 
-        <div className="exercise-stat-grid">
-          <div>
-            <span>Phase</span>
-            <strong>{machineState}</strong>
+        <p
+          className="exercise-guidance"
+          aria-live="polite"
+          data-warning={Boolean(formError)}
+        >
+          {formError ?? "hold your line"}
+        </p>
+
+        <div className="exercise-bottom-bar" aria-label="Push-up session status">
+          <button
+            className="exercise-speech-control"
+            type="button"
+            aria-pressed={speechEnabled}
+            aria-label={speechEnabled ? "Mute voice coaching" : "Enable voice coaching"}
+            title={speechEnabled ? "Mute voice coaching" : "Enable voice coaching"}
+            onClick={toggleSpeech}
+          >
+            {speechEnabled ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+            <span className="sr-only">{speechEnabled ? "Voice on" : "Voice off"}</span>
+          </button>
+
+          <div className="exercise-rep-readout">
+            <span className="exercise-rep-label">reps</span>
+            <strong>
+              <span>{repDisplay}</span>
+              <em>/ 30</em>
+            </strong>
+            <div
+              className="exercise-progress"
+              role="progressbar"
+              aria-label="Push-up set progress"
+              aria-valuemin={0}
+              aria-valuemax={30}
+              aria-valuenow={reps}
+            >
+              <span style={{ transform: `scaleX(${progress})` }} />
+            </div>
           </div>
-          <div>
-            <span>Target</span>
-            <strong>30 reps</strong>
-          </div>
         </div>
-
-        {formError && (
-          <div className="exercise-form-warning" role="alert">
-            <CircleAlert aria-hidden="true" />
-            <span>{formError}</span>
-          </div>
-        )}
-
-        <div className="exercise-mobile-hud border p-3 rounded-full">
-          <span className="exercise-mobile-reps border-r">{reps}</span>
-          <span className="exercise-mobile-status">
-            <strong>{machineState}</strong>
-          </span>
-        </div>
-
-        <div className="exercise-coach-note">
-          <Check aria-hidden="true" />
-          <p>
-            Choose a view where your joints stay visible. Start with straight
-            arms, lower with control, then fully extend to finish each rep.
-          </p>
-        </div>
-      </aside>
+      </div>
 
       <ExerciseInitializationDialog
         cameraError={cameraError}

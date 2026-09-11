@@ -157,6 +157,13 @@
   --color-line: rgba(247, 247, 242, 0.16);
   --color-accent: #f1ee19;
   --color-accent-ink: #111210;
+  --color-exercise-marker: #61d874;
+  --color-exercise-warm: #f3d3aa;
+  --color-exercise-frame: rgba(247, 247, 242, 0.58);
+  --color-exercise-ink: #f7f7f2;
+  --color-exercise-muted: #d0d5ce;
+  --color-exercise-dim: #a6aea4;
+  --radius-exercise-frame: 28px;
   --font-display: "Roboto Condensed Variable", "Arial Narrow", sans-serif;
   --font-body: "Geist Variable", system-ui, sans-serif;
   --space-1: 4px;
@@ -180,6 +187,12 @@
   --color-line: rgba(23, 25, 20, 0.16);
   --color-accent: #686d00;
   --color-accent-ink: #f7f7f2;
+  --color-exercise-marker: #3f8d4b;
+  --color-exercise-warm: #f3d3aa;
+  --color-exercise-frame: rgba(247, 247, 242, 0.58);
+  --color-exercise-ink: #f7f7f2;
+  --color-exercise-muted: #d0d5ce;
+  --color-exercise-dim: #a6aea4;
 }
 
 html {
@@ -239,6 +252,15 @@ section[id] {
 
 .site-shell main {
   padding-top: var(--header-height);
+}
+
+.is-exercise-route .site-header,
+.is-exercise-route .site-footer {
+  display: none;
+}
+
+.is-exercise-route main {
+  padding-top: 0;
 }
 
 .brand-mark {
@@ -380,15 +402,6 @@ section[id] {
 }
 
 @media (max-width: 800px) {
-  .is-exercise-route .site-header,
-  .is-exercise-route .site-footer {
-    display: none;
-  }
-
-  .is-exercise-route main {
-    padding-top: 0;
-  }
-
   .is-exercise-route .exercise-page {
     margin-top: 0;
   }

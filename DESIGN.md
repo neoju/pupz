@@ -131,12 +131,13 @@ All spacing uses a 4px base: `--space-1` 4px, `--space-2` 8px, `--space-3` 12px,
 
 ### Exercise session surface
 
-- **Structure**: full-height camera stage with mirrored video, pose canvas overlay, session HUD, and a compact progress rail.
-- **Variants**: edge-to-edge mobile camera; split camera and instrument-panel desktop layout; blocking initialization dialog.
-- **Spacing**: `--space-6` mobile gutters, `--space-12` desktop gutters, `--space-4` HUD rhythm.
-- **States**: preparing camera, tracking live, camera initialization error, form warning, and reduced motion.
+- **Structure**: edge-to-edge camera stage with mirrored video, pose canvas overlay, inset rounded frame, three-point top readout, centered tracking marker, warm coaching line, and two bottom controls.
+- **Variants**: fullscreen desktop frame; edge-to-edge mobile frame; blocking initialization dialog.
+- **Spacing**: `--space-3` to `--space-6` frame inset, `--space-6` mobile safe-area gutters, `--space-4` HUD rhythm.
+- **Tokens**: `--color-exercise-marker` for live pose guidance, `--color-exercise-warm` for coaching copy, `--color-exercise-frame` for the hand-drawn-inspired rim, `--color-exercise-ink`/`--color-exercise-muted`/`--color-exercise-dim` for contrast-safe HUD text over camera media, and `--radius-exercise-frame` for the outer frame.
+- **States**: preparing camera, tracking live, camera initialization error, form warning, voice coaching on/off, and reduced motion.
 - **Accessibility**: camera status is text-visible, progress exposes `aria-valuenow`, exit is a semantic link, and the canvas remains decorative.
-- **Motion**: initialization dialog uses a single transform-based spinner while the camera and MediaPipe task initialize; reduced motion freezes the spinner while keeping the status visible.
+- **Motion**: the live marker uses a restrained opacity/scale pulse to signal tracking; exit and voice controls use short transform/color feedback; initialization dialog uses a single transform-based spinner. Reduced motion freezes decorative movement while keeping status visible.
 
 ## 6. Motion & Interaction
 
@@ -145,6 +146,8 @@ All spacing uses a 4px base: `--space-1` 4px, `--space-2` 8px, `--space-3` 12px,
 - Metric progress: 700ms ease-out, once after mount; it communicates the current target rather than decorating the page.
 - Interaction reference: beui.dev `button` mechanism for interruptible press feedback and `number` mechanism for metric emphasis; adapted to CSS because this app has no motion library.
 - `prefers-reduced-motion: reduce` disables hero and progress movement while preserving contrast and state changes.
+
+Exercise overlay motion follows the beui.dev `button` mechanism: interruptible transform press feedback plus short color easing, with the live marker pulse reserved for the tracking state. No new motion library is required.
 
 ## 7. Depth & Surface
 
@@ -159,6 +162,18 @@ Strategy: mixed. The hero uses image atmosphere, a multi-stop scrim, and a soft 
 - Respect reduced-motion preferences.
 - Use `svh`/intrinsic sizing rather than hard `100vh`; preserve reading order on mobile.
 - Meaningful imagery gets alt text; decorative grain and gradients are hidden from assistive technology.
+
+### Exercise overlay tokens
+
+| Token | Value | Usage |
+|------|------|------|
+| `--color-exercise-marker` | `#61d874` | Pose marker and live tracking accent |
+| `--color-exercise-warm` | `#f3d3aa` | Warm coaching line over the camera plane |
+| `--color-exercise-frame` | `rgba(247,247,242,0.58)` | Inset frame rim |
+| `--color-exercise-ink` | `#f7f7f2` | Primary HUD text over camera media |
+| `--color-exercise-muted` | `#d0d5ce` | Secondary HUD labels over camera media |
+| `--color-exercise-dim` | `#a6aea4` | Tertiary camera status text |
+| `--radius-exercise-frame` | `28px` | Desktop frame radius; mobile removes the radius at the viewport edge |
 
 ### Accepted Debt
 

@@ -1,0 +1,93 @@
+@media (max-width: 800px) {
+  .exercise-frame {
+    inset: 12px;
+    border-radius: 20px;
+  }
+
+  .exercise-topbar {
+    inset: 32px 28px auto;
+    gap: var(--space-3);
+  }
+
+  .exercise-metric > span:first-child {
+    font-size: 0.5625rem;
+    letter-spacing: 0.09em;
+  }
+
+  .exercise-metric strong {
+    font-size: 1.75rem;
+  }
+
+  .exercise-brand {
+    font-size: 1.625rem;
+  }
+
+  .exercise-live-status {
+    max-width: 7rem;
+    justify-content: flex-end;
+    font-size: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .exercise-guidance {
+    bottom: 136px;
+    font-size: 1.25rem;
+  }
+
+  .exercise-bottom-bar {
+    right: 28px;
+    bottom: calc(28px + env(safe-area-inset-bottom));
+    left: 28px;
+  }
+
+  .exercise-speech-control {
+    width: 48px;
+    height: 48px;
+  }
+
+  .exercise-speech-control svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .exercise-rep-readout {
+    min-width: 116px;
+  }
+
+  .exercise-rep-readout strong {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .exercise-topbar {
+    inset-inline: 24px;
+  }
+
+  .exercise-exit span,
+  .exercise-live-status {
+    display: none;
+  }
+
+  .exercise-exit {
+    padding: 4px;
+  }
+
+  .exercise-guidance {
+    bottom: 128px;
+  }
+
+  .exercise-bottom-bar {
+    inset-inline: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exercise-tracking-marker[data-live="true"] .exercise-marker-ring,
+  .exercise-exit,
+  .exercise-speech-control,
+  .exercise-progress span {
+    animation: none;
+    transition: none;
+  }
+}
