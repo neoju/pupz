@@ -1,3 +1,5 @@
+import { POSE_DETECTION_ERROR } from "@/lib/constants";
+
 export type PosePoint = {
   readonly x: number;
   readonly y: number;
@@ -119,8 +121,7 @@ function assessSide(pose: PushupPose, side: 0 | 1): ArmAssessment {
   if (!shoulder || !elbow || !wrist || !hip || !knee || !ankle) {
     return {
       status: "unobservable",
-      message:
-        "Keep a shoulder, elbow, wrist, hip, knee and ankle clearly in frame.",
+      message: POSE_DETECTION_ERROR.JOINTS_OUT_OF_FRAME,
     };
   }
   const elbowAngle = angle(shoulder, elbow, wrist);
@@ -129,18 +130,18 @@ function assessSide(pose: PushupPose, side: 0 | 1): ArmAssessment {
   if (elbowAngle === null || hipAngle === null || kneeAngle === null) {
     return {
       status: "unobservable",
-      message: "Move into clearer view so your joints can be tracked.",
+      message: POSE_DETECTION_ERROR.JOINTS_UNCLEAR,
     };
   }
   if (hipAngle < thresholds.straightHip)
     return {
       status: "invalid",
-      message: "Keep your hips in line with your shoulders and legs.",
+      message: POSE_DETECTION_ERROR.HIPS_MISALIGNED,
     };
   if (kneeAngle < thresholds.straightKnee)
     return {
       status: "invalid",
-      message: "Keep your knees extended throughout the push-up.",
+      message: POSE_DETECTION_ERROR.KNEES_BENT,
     };
 
   const body = subtract(ankle, shoulder);
@@ -165,8 +166,7 @@ function assessSide(pose: PushupPose, side: 0 | 1): ArmAssessment {
   ) {
     return {
       status: "invalid",
-      message:
-        "Take a straight-body push-up position with your hands supporting your shoulders.",
+      message: POSE_DETECTION_ERROR.POSITION_UNSUPPORTED,
     };
   }
   const ear = visiblePoint(pose, 7 + side);
@@ -174,7 +174,7 @@ function assessSide(pose: PushupPose, side: 0 | 1): ArmAssessment {
   if (headAngle !== null && headAngle < thresholds.neutralHead) {
     return {
       status: "invalid",
-      message: "Keep your head aligned with your torso.",
+      message: POSE_DETECTION_ERROR.HEAD_MISALIGNED,
     };
   }
   const supportHeight =
@@ -201,8 +201,7 @@ export function evaluatePushupPose(pose: PushupPose): PushupObservation {
     return {
       status: "unobservable",
       timestamp: pose.timestamp,
-      message:
-        "Keep a shoulder, elbow, wrist, hip, knee and ankle clearly in frame.",
+      message: POSE_DETECTION_ERROR.JOINTS_OUT_OF_FRAME,
     };
   }
 

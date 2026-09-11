@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "generate:audio": "uv run scripts/generate_audio.py",
     "predev": "node scripts/copy-mediapipe-wasm.mjs",
     "build": "tsc -b && vite build",
     "prebuild": "node scripts/copy-mediapipe-wasm.mjs",
@@ -20,8 +21,6 @@
     "@tailwindcss/vite": "^4.3.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "denque": "^2.1.0",
-    "kokoro-js": "1.2.1",
     "lucide-react": "^1.34.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

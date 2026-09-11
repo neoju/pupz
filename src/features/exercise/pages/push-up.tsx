@@ -8,8 +8,8 @@ import {
 } from "@/lib/exercise-history";
 
 import { ExerciseInitializationDialog } from "../components/exercise-initialization-dialog";
+import { useAudioSession } from "../use-audio-session";
 import { usePoseSession } from "../use-pose-session";
-import { useSpeechSession } from "../use-speech-session";
 
 import "./push-up.css";
 
@@ -20,7 +20,7 @@ export default function Page() {
 
   const { reps, machineState, formError, isLoaded, cameraError } =
     usePoseSession(videoRef, canvasRef);
-  const { speechEnabled, toggleSpeech } = useSpeechSession(
+  const { speechEnabled, toggleSpeech } = useAudioSession(
     startingReps,
     reps,
     formError,
