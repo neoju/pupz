@@ -137,3 +137,93 @@
   40% { opacity: 0.7; }
   100% { opacity: 0; transform: scale(1.15); }
 }
+
+.exercise-completion-backdrop {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: color-mix(in srgb, var(--color-canvas) 76%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.exercise-completion-dialog {
+  width: min(100%, 27rem);
+  padding: var(--space-12) var(--space-6) var(--space-6);
+  border: 1px solid var(--color-line);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-ink) 8%, transparent),
+      transparent 46%
+    ),
+    var(--color-canvas-raised);
+  box-shadow: 0 24px 80px
+    color-mix(in srgb, var(--color-canvas) 48%, transparent);
+  color: var(--color-ink);
+  text-align: center;
+}
+
+.exercise-completion-dialog > svg {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto var(--space-6);
+  color: var(--color-accent);
+}
+
+.exercise-completion-dialog h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.exercise-completion-dialog > p:nth-of-type(2) {
+  margin: var(--space-4) auto 0;
+  color: var(--color-ink-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.exercise-cooldown-status {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+  color: var(--color-ink-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.exercise-cooldown-status strong {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+  font-variant-numeric: tabular-nums;
+}
+
+.exercise-completion-dialog button {
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.exercise-completion-dialog button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
