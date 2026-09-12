@@ -1,4 +1,3 @@
-
 export default function Logo() {
   return <span className="inline-flex items-center font-pupz-display text-[1.75rem] 
     font-[780] leading-none tracking-[-0.09em] text-pupz-ink no-underline after:ml-[4px] 

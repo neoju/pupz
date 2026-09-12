@@ -1,9 +1,5 @@
-import { Moon, Sun } from "lucide-react";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router";
-
-import { Button } from "@/components/ui/button";
-import Logo from "../logo";
 
 type ColorScheme = "light" | "dark";
 
