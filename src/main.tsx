@@ -6,10 +6,13 @@ if (import.meta.env.DEV) {
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import { preloadAudioAssets } from "@/lib/audio";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/roboto-condensed";
 import "./index.css";
 import App from "./app";
+
+preloadAudioAssets();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
