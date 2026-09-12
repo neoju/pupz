@@ -18,7 +18,6 @@
 .exercise-stage-scrim,
 .exercise-frame,
 .exercise-topbar,
-.exercise-tracking-marker,
 .exercise-guidance,
 .exercise-bottom-bar {
   position: absolute;
@@ -30,6 +29,7 @@
 }
 
 .exercise-media {
+  pointer-events: none;
   background: var(--color-canvas-raised);
 }
 
@@ -43,6 +43,7 @@
 }
 
 .exercise-video {
+  pointer-events: none;
   transform: scaleX(-1);
   filter: saturate(0.62) contrast(1.04);
 }
@@ -121,38 +122,13 @@
   text-align: right;
 }
 
-.exercise-exit,
 .exercise-live-status {
   display: inline-flex;
   align-items: center;
 }
 
-.exercise-exit {
-  width: fit-content;
-  gap: var(--space-1);
-  margin-top: var(--space-3);
-  padding: 4px 8px 4px 4px;
-  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
-  border-radius: 999px;
-  color: var(--color-exercise-muted);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-decoration: none;
-  text-transform: uppercase;
+.exercise-topbar button {
   pointer-events: auto;
-  transition: transform 180ms var(--ease-emphasis), color 180ms ease-out, border-color 180ms ease-out;
-}
-
-.exercise-exit:hover {
-  border-color: var(--color-exercise-frame);
-  color: var(--color-exercise-ink);
-  transform: translateY(-2px);
-}
-
-.exercise-exit svg {
-  width: 16px;
-  height: 16px;
 }
 
 .exercise-live-status {
@@ -175,45 +151,4 @@
 .exercise-live-status[data-live="true"] span {
   background: var(--color-exercise-marker);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-exercise-marker) 16%, transparent);
-}
-
-.exercise-tracking-marker {
-  z-index: 2;
-  top: 49%;
-  left: 50%;
-  display: grid;
-  width: clamp(96px, 12vw, 152px);
-  aspect-ratio: 1;
-  place-items: center;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.exercise-marker-ring,
-.exercise-marker-core {
-  grid-area: 1 / 1;
-}
-
-.exercise-marker-ring {
-  width: 100%;
-  height: 100%;
-  border: 1px solid color-mix(in srgb, var(--color-exercise-marker) 28%, transparent);
-  border-radius: 50%;
-  opacity: 0;
-  transform: scale(0.56);
-}
-
-.exercise-marker-ring:nth-child(2) {
-  width: 74%;
-  height: 74%;
-}
-
-.exercise-marker-core {
-  width: 46%;
-  height: 56%;
-  border: 2px solid var(--color-exercise-marker);
-  border-radius: 18% 62% 62% 18%;
-  background: color-mix(in srgb, var(--color-exercise-marker) 42%, transparent);
-  clip-path: polygon(8% 4%, 100% 50%, 8% 96%);
-  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--color-exercise-marker) 48%, transparent));
 }

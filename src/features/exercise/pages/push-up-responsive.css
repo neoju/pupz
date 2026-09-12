@@ -64,15 +64,6 @@
     inset-inline: 24px;
   }
 
-  .exercise-exit span,
-  .exercise-live-status {
-    display: none;
-  }
-
-  .exercise-exit {
-    padding: 4px;
-  }
-
   .exercise-guidance {
     bottom: 128px;
   }
@@ -83,8 +74,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .exercise-tracking-marker[data-live="true"] .exercise-marker-ring,
-  .exercise-exit,
+  .exercise-paused-ring,
   .exercise-speech-control,
   .exercise-progress span {
     animation: none;

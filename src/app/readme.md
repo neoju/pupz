@@ -1,1 +1,0 @@
-# 🌍 Global Application Core Layer

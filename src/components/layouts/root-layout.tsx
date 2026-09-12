@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router";
 
 import { Button } from "@/components/ui/button";
+import Logo from "../logo";
 
 type ColorScheme = "light" | "dark";
 
@@ -74,51 +75,8 @@ export default function RootLayout() {
   };
 
   return (
-    <div
-      className={`site-shell flex min-h-svh flex-col overflow-x-hidden bg-pupz-canvas${
-        location.pathname === "/exercise/push-up" ? " is-exercise-route" : ""
-      }`}
-    >
-      <header className={isScrolled ? "site-header is-scrolled" : "site-header"}>
-        <a className="brand-mark" href="/" aria-label="pupz home">
-          pupz
-        </a>
-
-        <nav aria-label="Main navigation" className="hero-nav">
-          <a href="/#challenge">Challenge</a>
-          <a href="/#progress">Progress</a>
-          <a href="/#method">Method</a>
-          <a href="/#download">About</a>
-        </nav>
-
-        <Button
-          className="rounded-[10px] hover:cursor-pointer"
-          variant="outline"
-          size="icon-sm"
-          type="button"
-          aria-label={`Switch to ${colorScheme === "dark" ? "light" : "dark"} mode`}
-          aria-pressed={colorScheme === "light"}
-          title={`Switch to ${colorScheme === "dark" ? "light" : "dark"} mode`}
-          onClick={toggleColorScheme}
-        >
-          {colorScheme === "dark" ? (
-            <Sun aria-hidden="true" />
-          ) : (
-            <Moon aria-hidden="true" />
-          )}
-        </Button>
-      </header>
-
-      <main className="flex-1">
-        <Outlet />
-      </main>
-
-      <footer className="site-footer w-full">
-        <p>
-          One plan. Every day. <span>Real results.</span>
-        </p>
-        <p>© {new Date().getFullYear()} pupz</p>
-      </footer>
-    </div>
+    <main>
+      <Outlet />
+    </main>
   );
 }

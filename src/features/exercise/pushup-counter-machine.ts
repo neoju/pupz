@@ -1,7 +1,7 @@
 import { assign, setup } from "xstate";
 import type { PushupObservation } from "./pushup-pose";
 
-export const pushupThresholds = {
+const pushupThresholds = {
   topAngle: 145,
   descentAngle: 140,
   bottomAngle: 100,
@@ -23,7 +23,9 @@ type CounterContext = {
 };
 type CounterEvent =
   | { readonly type: "POSE_UPDATED"; readonly observation: PushupObservation }
-  | { readonly type: "RESET" };
+  | { readonly type: "RESET" }
+  | { readonly type: "PAUSE" }
+  | { readonly type: "RESUME" };
 
 const initialContext: CounterContext = {
   reps: 0,
@@ -40,7 +42,7 @@ const machineTypes: {
   input: { readonly initialReps: number };
 } = {
   context: initialContext,
-  events: { type: "RESET" },
+  events: {} as CounterEvent,
   input: { initialReps: 0 },
 };
 
@@ -142,6 +144,17 @@ export const pushupCounterMachine = setup({
     ),
     countRep: assign({ reps: ({ context }) => context.reps + 1 }),
     reset: assign(() => initialContext),
+    pause: assign({
+      lastTimestamp: null,
+      topSince: null,
+      bottomSince: null,
+    }),
+    resume: assign({
+      lastTimestamp: null,
+      topSince: null,
+      bottomSince: null,
+      formError: null,
+    }),
   },
 }).createMachine({
   id: "pushupCounter",
@@ -150,8 +163,17 @@ export const pushupCounterMachine = setup({
     reps: input.initialReps,
   }),
   initial: "searching",
-  on: { RESET: { target: ".searching", actions: "reset" } },
+  on: {
+    RESET: { target: ".searching", actions: "reset" },
+    PAUSE: { target: ".paused", actions: "pause" },
+  },
   states: {
+    paused: {
+      on: {
+        RESUME: { target: "#pushupCounter.searching", actions: "resume" },
+        RESET: { target: "#pushupCounter.searching", actions: "reset" },
+      },
+    },
     searching: {
       on: {
         POSE_UPDATED: [

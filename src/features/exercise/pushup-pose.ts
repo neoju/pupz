@@ -1,6 +1,6 @@
 import { POSE_DETECTION_ERROR } from "@/lib/constants";
 
-export type PosePoint = {
+type PosePoint = {
   readonly x: number;
   readonly y: number;
   readonly z: number;
@@ -24,7 +24,7 @@ export type PushupObservation =
     readonly message: string;
   };
 
-export type PushupPose = {
+type PushupPose = {
   readonly worldLandmarks: readonly PosePoint[];
   readonly landmarks: readonly PosePoint[];
   readonly timestamp: number;

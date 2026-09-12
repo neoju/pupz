@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { createActor } from "xstate";
 
 import { getExerciseHistorySummary } from "@/lib/exercise-history";
@@ -17,6 +17,13 @@ interface PoseSessionSnapshot {
   readonly formError: string | null;
   readonly isLoaded: boolean;
   readonly cameraError: string | null;
+  readonly isRunning: boolean;
+}
+
+interface PoseSessionControls extends PoseSessionSnapshot {
+  readonly start: () => void;
+  readonly pause: () => void;
+  readonly toggleRunning: () => void;
 }
 
 const initialSnapshot: PoseSessionSnapshot = {
@@ -25,6 +32,7 @@ const initialSnapshot: PoseSessionSnapshot = {
   formError: null,
   isLoaded: false,
   cameraError: null,
+  isRunning: false,
 };
 
 const nonVisualLandmarks = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -36,11 +44,39 @@ const assertNever = (value: never): never => {
 export function usePoseSession(
   videoRef: RefObject<HTMLVideoElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-): PoseSessionSnapshot {
+): PoseSessionControls {
   const [snapshot, setSnapshot] = useState<PoseSessionSnapshot>(() => ({
     ...initialSnapshot,
     reps: getExerciseHistorySummary().today,
   }));
+  const [isRunning, setIsRunning] = useState(false);
+  const runningRef = useRef(false);
+  const sessionControlsRef = useRef<{
+    pause: () => void;
+    resume: () => void;
+  } | null>(null);
+
+  const start = useCallback(() => {
+    sessionControlsRef.current?.resume();
+    runningRef.current = true;
+    setIsRunning(true);
+    setSnapshot((current) => ({ ...current, isRunning: true }));
+  }, []);
+
+  const pause = useCallback(() => {
+    sessionControlsRef.current?.pause();
+    runningRef.current = false;
+    setIsRunning(false);
+    setSnapshot((current) => ({ ...current, isRunning: false }));
+  }, []);
+
+  const toggleRunning = useCallback(() => {
+    if (runningRef.current) {
+      pause();
+    } else {
+      start();
+    }
+  }, [pause, start]);
 
   const createPoseSession = useCallback(() => {
     const initialReps = getExerciseHistorySummary().today;
@@ -54,6 +90,8 @@ export function usePoseSession(
     let isCancelled = false;
     let isWorkerFailed = false;
     let isFramePending = false;
+    let isLoopActive = false;
+    let isCameraAttached = false;
     let lastVideoTime = -1;
     let connections: readonly PoseConnection[] = [];
     let resolveWorkerReady: (() => void) | null = null;
@@ -66,6 +104,92 @@ export function usePoseSession(
     const stopMediaStream = () => {
       mediaStream?.getTracks().forEach((track) => track.stop());
       mediaStream = null;
+    };
+
+    const clearPreview = () => {
+      const video = videoRef.current;
+      if (video) {
+        video.pause();
+        video.removeAttribute("src");
+        video.srcObject = null;
+        video.load();
+      }
+      const canvas = canvasRef.current;
+      const context = canvas?.getContext("2d");
+      if (canvas && context) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    const stopPredictionLoop = () => {
+      isLoopActive = false;
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = 0;
+    };
+
+    const startPredictionLoop = () => {
+      if (isLoopActive || isCancelled || isWorkerFailed) return;
+      isLoopActive = true;
+      predictWebcam();
+    };
+
+    const detachCamera = () => {
+      stopPredictionLoop();
+      isCameraAttached = false;
+      clearPreview();
+      stopMediaStream();
+    };
+
+    const attachCamera = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Camera access is not available in this browser.");
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480, facingMode: "user" },
+      });
+
+      if (isCancelled) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      mediaStream = stream;
+      const video = videoRef.current;
+      if (!video) {
+        stopMediaStream();
+        throw new Error("Camera preview is unavailable.");
+      }
+
+      video.srcObject = mediaStream;
+      await video.play();
+
+      if (isCancelled) return;
+
+      lastVideoTime = -1;
+      isFramePending = false;
+      isCameraAttached = true;
+      startPredictionLoop();
+    };
+
+    sessionControlsRef.current = {
+      pause: () => {
+        actor.send({ type: "PAUSE" });
+        detachCamera();
+      },
+      resume: () => {
+        actor.send({ type: "RESUME" });
+        if (!isCameraAttached && !isWorkerFailed) {
+          void attachCamera().catch((error: unknown) => {
+            if (isCancelled) return;
+            actor.send({ type: "PAUSE" });
+            runningRef.current = false;
+            setIsRunning(false);
+            setSnapshot((current) => ({ ...current, isRunning: false }));
+            fail(error);
+          });
+        }
+      },
     };
 
     const fail = (error: unknown) => {
@@ -186,7 +310,10 @@ export function usePoseSession(
           });
       }
 
-      animationFrameId = requestAnimationFrame(predictWebcam);
+      animationFrameId = 0;
+      if (isLoopActive && !isCancelled) {
+        animationFrameId = requestAnimationFrame(predictWebcam);
+      }
     };
 
     const subscription = actor.subscribe((next) => {
@@ -209,10 +336,12 @@ export function usePoseSession(
         case "RESULT":
           isFramePending = false;
           drawPose(response.landmarks);
-          actor.send({
-            type: "POSE_UPDATED",
-            observation: response.observation,
-          });
+          if (runningRef.current) {
+            actor.send({
+              type: "POSE_UPDATED",
+              observation: response.observation,
+            });
+          }
           break;
         case "ERROR":
           isWorkerFailed = true;
@@ -235,36 +364,16 @@ export function usePoseSession(
 
     const initialize = async () => {
       try {
-        if (!navigator.mediaDevices?.getUserMedia) {
-          throw new Error("Camera access is not available in this browser.");
-        }
-
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: "user" },
-        });
-
-        if (isCancelled) {
-          stopMediaStream();
-          return;
-        }
-
         actor.start();
         worker.postMessage({ type: "INITIALIZE" });
         await workerReady;
 
         if (isCancelled) return;
 
-        const video = videoRef.current;
-        if (!video) throw new Error("Camera preview is unavailable.");
-
-        video.srcObject = mediaStream;
-        video.onloadedmetadata = () => {
-          void video.play();
-          setSnapshot((current) => ({ ...current, isLoaded: true }));
-          predictWebcam();
-        };
+        // The camera stays off until the user presses start; only the
+        // pose worker and counter are prepared here.
+        setSnapshot((current) => ({ ...current, isLoaded: true }));
       } catch (error: unknown) {
-        stopMediaStream();
         if (!isCancelled) fail(error);
       }
     };
@@ -273,16 +382,18 @@ export function usePoseSession(
 
     return () => {
       isCancelled = true;
-      cancelAnimationFrame(animationFrameId);
+      stopPredictionLoop();
       subscription.unsubscribe();
       actor.stop();
+      sessionControlsRef.current = null;
       worker.postMessage({ type: "CLOSE" });
       worker.terminate();
+      clearPreview();
       stopMediaStream();
     };
   }, [canvasRef, videoRef]);
 
   useEffect(() => createPoseSession(), [createPoseSession]);
 
-  return snapshot;
+  return { ...snapshot, isRunning, start, pause, toggleRunning };
 }

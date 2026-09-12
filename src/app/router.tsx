@@ -3,9 +3,7 @@ import { createBrowserRouter } from "react-router";
 import { AppRouteError } from "@/components/pages/app-route-error";
 import RootLayout from "@/components/layouts/root-layout";
 import NotFoundPage from "@/components/pages/not-found";
-
-import { DashboardRoutes, PupzHomepage } from "@/features/dashboard";
-import { ExerciseRoutes } from "@/features/exercise";
+import { PushUpPage } from "@/features/exercise";
 
 export const router = createBrowserRouter([
   {
@@ -15,11 +13,8 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <PupzHomepage />,
+        element: <PushUpPage />,
       },
-      // feature routes
-      ...DashboardRoutes,
-      ...ExerciseRoutes,
       {
         path: "*",
         element: <NotFoundPage />,

@@ -91,12 +91,12 @@ export function ExerciseInitializationDialog({
         )}
         <p className="exercise-eyebrow">Session setup</p>
         <h2 id="exercise-initialization-title">
-          {cameraError ? "Camera setup failed" : "Calibrating your camera"}
+          {cameraError ? "Camera setup failed" : "Warming up the tracker"}
         </h2>
         <p id="exercise-initialization-description">
           {cameraError
             ? cameraError
-            : "We're preparing the camera and pose tracking. This usually takes a moment."}
+            : "We're preparing pose tracking. Your camera stays off until you press start."}
         </p>
         {cameraError && (
           <Link className="exercise-initialization-exit" to="/">

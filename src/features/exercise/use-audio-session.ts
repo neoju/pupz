@@ -132,6 +132,7 @@ export function useAudioSession(
   initialReps: number,
   reps: number,
   formError: string | null,
+  isActive = true,
 ): AudioSessionControls {
   const controllerRef = useRef<AudioController | null>(null);
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -147,8 +148,9 @@ export function useAudioSession(
   }, [initialReps]);
 
   useEffect(() => {
+    if (!isActive) return;
     controllerRef.current?.announceCount(reps);
-  }, [reps]);
+  }, [reps, isActive]);
 
   useEffect(() => {
     if (warningTimerRef.current !== null) {
@@ -156,7 +158,7 @@ export function useAudioSession(
       warningTimerRef.current = null;
     }
 
-    if (formError === null) {
+    if (!isActive || formError === null) {
       controllerRef.current?.clearWarning();
       return;
     }
@@ -172,7 +174,7 @@ export function useAudioSession(
         warningTimerRef.current = null;
       }
     };
-  }, [formError]);
+  }, [formError, isActive]);
 
   return {
     speechEnabled,
