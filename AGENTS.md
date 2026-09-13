@@ -11,7 +11,7 @@ PupZ is a single-package Vite + React 19 + TypeScript app for a daily push-up ch
 ## STRUCTURE
 
 ```text
-pupz/
+30pupz/
 ├── src/app/                 # Router and application entry composition
 ├── src/components/          # Shared layout, fallback pages, and UI primitives
 ├── src/features/dashboard/  # Homepage/dashboard experience

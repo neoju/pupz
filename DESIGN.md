@@ -1,14 +1,13 @@
-# pupz design system
+# 30pupz design system
 
 ## 0. Research Log
 
 - Supplied Dribbble motion reference: viewed the 9.65s video at logo and hero frames; harvested the full-bleed workout scene, black pill navigation, compressed white display type, yellow CTA, and floating live metric.
-- Imagen draft: `/home/neo/.codex/generated_images/01a046af-c3ae-79f0-a36d-4567e7ebcbaa/exec-bac5a4ec-352a-4752-82d9-f509af002b5e.png` → picked as the implementation reference for the original pupz homepage composition and content hierarchy.
 - Lazyweb research: skipped because the supplied video is the concrete visual contract.
 
 ## 1. Atmosphere & Identity
 
-pupz feels like the quiet second before a set starts: dark, focused, physical, and a little cinematic. The signature is a warm workout scene held inside a near-black shell, with one electric-yellow action and live progress UI that feels like an instrument panel rather than a dashboard.
+30pupz feels like the quiet second before a set starts: dark, focused, physical, and a little cinematic. The signature is a warm workout scene held inside a near-black shell, with one electric-yellow action and live progress UI that feels like an instrument panel rather than a dashboard.
 
 ## 2. Color
 

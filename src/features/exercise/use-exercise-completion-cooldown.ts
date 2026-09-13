@@ -45,11 +45,22 @@ export function useExerciseCompletionCooldown({
     return () => window.clearTimeout(updateDialog);
   }, [cooldownDeadline, pause, sessionReps]);
 
+  const onRenew = () => {
+    if (cooldownDeadline === null || Date.now() < cooldownDeadline) return;
+    clearExerciseCooldown();
+    window.location.reload();
+  };
+
   useEffect(() => {
     if (cooldownDeadline === null) return;
 
     const updateRemainingTime = () => {
-      setRemainingCooldownMs(Math.max(0, cooldownDeadline - Date.now()));
+      const time = Math.max(0, cooldownDeadline - Date.now())
+      setRemainingCooldownMs(time);
+
+      if (time == 0) {
+        clearExerciseCooldown();
+      }
     };
     updateRemainingTime();
     const interval = window.setInterval(updateRemainingTime, 1_000);
@@ -69,12 +80,6 @@ export function useExerciseCompletionCooldown({
       document.removeEventListener("keydown", preventDismissal);
     };
   }, [cooldownDeadline]);
-
-  const onRenew = () => {
-    if (cooldownDeadline === null || Date.now() < cooldownDeadline) return;
-    clearExerciseCooldown();
-    window.location.reload();
-  };
 
   const remainingSeconds = Math.ceil(remainingCooldownMs / 1_000);
   const remainingMinutes = Math.floor(remainingSeconds / 60);

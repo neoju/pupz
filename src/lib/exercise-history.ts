@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-export const EXERCISE_HISTORY_STORAGE_KEY = "pupz-exercise-history";
-const EXERCISE_HISTORY_UPDATED_EVENT = "pupz:exercise-history-updated";
+export const EXERCISE_HISTORY_STORAGE_KEY = "30pupz-exercise-history";
+const EXERCISE_HISTORY_UPDATED_EVENT = "30pupz:exercise-history-updated";
 
 const RETENTION_DAYS = 90;
 

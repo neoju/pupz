@@ -13,17 +13,17 @@ export function AppRouteError() {
   return (
     <section className="flex min-h-[70svh] items-center justify-center px-6 text-center">
       <div className="flex max-w-md flex-col gap-6">
-        <p className="font-mono text-sm font-medium tracking-[0.3em] text-pupz-ink-dim uppercase">
+        <p className="font-mono text-sm font-medium tracking-[0.3em] text-30pupz-ink-dim uppercase">
           Something went wrong
         </p>
         <div className="flex flex-col gap-3">
-          <h1 className="font-pupz-display text-5xl font-bold tracking-[-0.06em] text-pupz-ink">
+          <h1 className="font-30pupz-display text-5xl font-bold tracking-[-0.06em] text-30pupz-ink">
             We couldn&apos;t load this page.
           </h1>
-          <p className="text-pupz-ink-muted">{detail}</p>
+          <p className="text-30pupz-ink-muted">{detail}</p>
         </div>
         <a
-          className={buttonVariants({ className: "self-center bg-pupz-accent text-pupz-accent-ink hover:bg-pupz-accent/90" })}
+          className={buttonVariants({ className: "self-center bg-30pupz-accent text-30pupz-accent-ink hover:bg-30pupz-accent/90" })}
           href="/"
         >
           Return home

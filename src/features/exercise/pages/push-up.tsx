@@ -122,7 +122,7 @@ export default function Page() {
             </Button>
           </div>
 
-          <span className="exercise-brand" aria-label="pupz">
+          <span className="exercise-brand" aria-label="30pupz">
             <Logo />
           </span>
 

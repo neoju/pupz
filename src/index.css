@@ -42,8 +42,8 @@
 @theme inline {
   --font-heading: var(--font-display);
   --font-sans: var(--font-body);
-  --font-pupz-display: var(--font-display);
-  --font-pupz-body: var(--font-body);
+  --font-30pupz-display: var(--font-display);
+  --font-30pupz-body: var(--font-body);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -58,15 +58,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-pupz-canvas: var(--color-canvas);
-  --color-pupz-canvas-raised: var(--color-canvas-raised);
-  --color-pupz-hero-panel: var(--color-hero-panel);
-  --color-pupz-ink: var(--color-ink);
-  --color-pupz-ink-muted: var(--color-ink-muted);
-  --color-pupz-ink-dim: var(--color-ink-dim);
-  --color-pupz-line: var(--color-line);
-  --color-pupz-accent: var(--color-accent);
-  --color-pupz-accent-ink: var(--color-accent-ink);
+  --color-30pupz-canvas: var(--color-canvas);
+  --color-30pupz-canvas-raised: var(--color-canvas-raised);
+  --color-30pupz-hero-panel: var(--color-hero-panel);
+  --color-30pupz-ink: var(--color-ink);
+  --color-30pupz-ink-muted: var(--color-ink-muted);
+  --color-30pupz-ink-dim: var(--color-ink-dim);
+  --color-30pupz-line: var(--color-line);
+  --color-30pupz-accent: var(--color-accent);
+  --color-30pupz-accent-ink: var(--color-accent-ink);
 
   --radius: 8px;
   --radius-sm: calc(var(--radius) * 0.6);

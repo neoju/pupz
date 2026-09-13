@@ -9,21 +9,21 @@ import "./not-found.css";
 export default function NotFoundPage() {
   return (
     <section
-      className="not-found relative mt-0 flex min-h-[min(760px,88svh)] items-center overflow-hidden bg-pupz-canvas isolate md:mt-20"
+      className="not-found relative mt-0 flex min-h-[min(760px,88svh)] items-center overflow-hidden bg-30pupz-canvas isolate md:mt-20"
       aria-labelledby="not-found-title"
     >
       <div className="relative z-1 mx-auto grid w-full max-w-360 grid-cols-1 gap-12 px-6 pb-16 pt-[clamp(10rem,18vh,12rem)] lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,1.1fr)] lg:gap-[clamp(3rem,10vw,6rem)] lg:px-[clamp(3rem,9vw,8rem)]">
         <div className="not-found-content relative z-1 max-w-[34rem] self-center">
-          <p className="mb-4 text-xs font-bold tracking-[0.16em] text-pupz-accent uppercase">
+          <p className="mb-4 text-xs font-bold tracking-[0.16em] text-30pupz-accent uppercase">
             Off the daily plan
           </p>
           <h1
-            className="max-w-[9ch] font-pupz-display text-[clamp(4rem,8vw,7rem)] leading-[0.86] font-extrabold tracking-[-0.08em] text-pupz-ink uppercase text-balance"
+            className="max-w-[9ch] font-30pupz-display text-[clamp(4rem,8vw,7rem)] leading-[0.86] font-extrabold tracking-[-0.08em] text-30pupz-ink uppercase text-balance"
             id="not-found-title"
           >
             This rep went missing.
           </h1>
-          <p className="my-6 mb-8 max-w-[30rem] text-[clamp(1rem,1.4vw,1.125rem)] leading-[1.5] text-pupz-ink-muted text-pretty">
+          <p className="my-6 mb-8 max-w-[30rem] text-[clamp(1rem,1.4vw,1.125rem)] leading-[1.5] text-30pupz-ink-muted text-pretty">
             The page you were looking for has moved, or it never made it into
             the set. Let&apos;s get you back to something useful.
           </p>
@@ -32,7 +32,7 @@ export default function NotFoundPage() {
             <Link
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "min-h-12 gap-4 rounded-[10px] bg-pupz-accent px-6 text-xs font-bold tracking-[0.08em] text-pupz-accent-ink uppercase transition-[background-color,transform,box-shadow] hover:bg-pupz-accent/90 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_color-mix(in_srgb,var(--color-accent)_18%,transparent)] active:translate-y-px active:scale-[0.985]",
+                "min-h-12 gap-4 rounded-[10px] bg-30pupz-accent px-6 text-xs font-bold tracking-[0.08em] text-30pupz-accent-ink uppercase transition-[background-color,transform,box-shadow] hover:bg-30pupz-accent/90 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_color-mix(in_srgb,var(--color-accent)_18%,transparent)] active:translate-y-px active:scale-[0.985]",
               )}
               to="/"
             >
@@ -40,7 +40,7 @@ export default function NotFoundPage() {
               <ArrowRight aria-hidden="true" data-icon="inline-end" />
             </Link>
             <Link
-              className="inline-flex min-h-12 items-center gap-2 text-xs font-bold tracking-[0.08em] text-pupz-ink-muted uppercase transition-[color,transform] hover:-translate-y-0.5 hover:text-pupz-ink"
+              className="inline-flex min-h-12 items-center gap-2 text-xs font-bold tracking-[0.08em] text-30pupz-ink-muted uppercase transition-[color,transform] hover:-translate-y-0.5 hover:text-30pupz-ink"
               to="/#progress"
             >
               Check your progress

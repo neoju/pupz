@@ -1,4 +1,4 @@
-export const EXERCISE_COOLDOWN_STORAGE_KEY = "pupz-exercise-cooldown";
+export const EXERCISE_COOLDOWN_STORAGE_KEY = "30pupz-exercise-cooldown";
 
 type StoredCooldown = {
   readonly cooldownEndsAt: number;
